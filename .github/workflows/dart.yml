@@ -2,17 +2,17 @@ name: Nomo-Router CI/CD
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: ["main", "develop"]
   pull_request:
-    branches: [ "develop" ]
+    branches: ["main", "develop"]
 
 jobs:
   lint:
-   name: Static code analysis
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@v3
-     - uses: subosito/flutter-action@v1
-     - run: flutter pub get
-     - name: Lint analysis
-       run: flutter analyze
+    name: Static code analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v1
+      - run: flutter pub get
+      - name: Lint analysis
+        run: flutter analyze
