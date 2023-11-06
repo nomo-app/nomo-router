@@ -36,6 +36,8 @@ class NomoNavigator extends InheritedWidget {
   void pop() {
     delegate.popRoute();
   }
+
+  RouteInfo get current => delegate.current;
 }
 
 class RouteInfoProvider extends InheritedWidget {

@@ -60,6 +60,10 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   final Widget Function(Widget nav) nestedNavigatorWrapper;
 
+  RouteInfo get current {
+    return _nestedStack.last.routeInfo;
+  }
+
   bool _handlePopPage(Route route, dynamic result) {
     if (_stack.length <= 1) {
       return false;
