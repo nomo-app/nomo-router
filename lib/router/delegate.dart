@@ -12,7 +12,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterConfiguration> {
   final GlobalKey<NavigatorState> _navigatorKey;
 
-  late final NomoPage nestedRouterPage;
+  late final PageRouteInfo nestedRouterPageInfo;
 
   final nestedStackNotifier = ValueNotifier<List<NomoPage>>([]);
 
@@ -22,29 +22,32 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     required this.nestedRoutes,
     required this.nestedNavigatorWrapper,
   }) {
-    nestedRouterPage = NomoPage(
-      routeInfo: PageRouteInfo(
-        name: "/",
-        page: nestedNavigatorWrapper(
-          ValueListenableBuilder(
-            valueListenable: nestedStackNotifier,
-            builder: (context, pages, child) {
-              return Navigator(
-                pages: pages,
-                onPopPage: (route, result) {
-                  if (!route.didPop(result)) {
-                    return false;
-                  }
-                  onNestedConfigChanged(pages.sublist(0, pages.length - 1));
-                  return true;
-                },
-              );
-            },
-          ),
+    nestedRouterPageInfo = PageRouteInfo(
+      name: "/",
+      page: nestedNavigatorWrapper(
+        ValueListenableBuilder(
+          valueListenable: nestedStackNotifier,
+          builder: (context, pages, child) {
+            return Navigator(
+              pages: pages,
+              onPopPage: (route, result) {
+                if (!route.didPop(result)) {
+                  return false;
+                }
+                onNestedConfigChanged(pages.sublist(0, pages.length - 1));
+                return true;
+              },
+            );
+          },
         ),
       ),
     );
   }
+
+  NomoPage get nestedRouterPage => NomoPage(
+        routeInfo: nestedRouterPageInfo,
+        key: ValueKey(_nestedStack),
+      );
 
   @override
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
@@ -102,7 +105,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
     /// If the root stack is empty, add the first page which contains the nested stack
     if (_stack.isEmpty) {
-      _stack.add(nestedRouterPage);
+      _stack.add(
+        nestedRouterPage,
+      );
     }
 
     // print("Root Stack: $_stack");
@@ -143,7 +148,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     List<NomoPage> pages = [];
     for (final routeSettings in config) {
       if (routeSettings.name == "/") {
-        pages.add(nestedRouterPage);
+        pages.add(
+          nestedRouterPage,
+        );
         continue;
       }
 
@@ -184,7 +191,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       _nestedStack.add(page);
       nestedStackNotifier.value = List.of(_nestedStack);
 
-      _stack = [nestedRouterPage];
+      _stack = [
+        nestedRouterPage,
+      ];
       notifyListeners();
       return;
     }
