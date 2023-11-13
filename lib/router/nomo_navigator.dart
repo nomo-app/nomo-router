@@ -24,13 +24,12 @@ class NomoNavigator extends InheritedWidget {
     return oldWidget.delegate != delegate;
   }
 
-  void push(RoutePath path) => delegate.pushRouteInfo(path);
+  void push(RoutePath path) => delegate.push(path);
 
-  void replace(RoutePath path) =>
-      throw UnimplementedError(); // delegate.replaceRouteInfo(path);
+  void replace(RoutePath path) => delegate.replace(path);
 
-  void popUntil(RoutePredicate predicate) =>
-      throw UnimplementedError(); // delegate.popUntil(predicate);
+  void popUntil(bool Function(NomoPage) predicate) =>
+      delegate.popUntil(predicate);
 
   void pop() => delegate.pop;
 
