@@ -3,8 +3,20 @@ import 'package:nomo_router/router/entities/routes/route_info.dart';
 import 'package:nomo_router/router/information_parser.dart';
 import 'package:nomo_router/router/nomo_navigator.dart';
 
-class NomoPage<T> extends Page<T> implements RouteSettings {
+final class RoutePath extends RouteSettings {
+  final JsonMap? urlArguments;
+
+  const RoutePath({
+    required super.name,
+    this.urlArguments,
+    super.arguments,
+  });
+}
+
+sealed class NomoPage<T> extends Page<T> implements RoutePath {
   final RouteInfo routeInfo;
+
+  @override
   final JsonMap? urlArguments;
 
   NomoPage({
@@ -63,4 +75,37 @@ class NomoPage<T> extends Page<T> implements RouteSettings {
             },
           )
       };
+
+  @override
+  String toString() {
+    return routeInfo.name;
+  }
+}
+
+final class RootNomoPage<T> extends NomoPage<T> {
+  RootNomoPage({
+    required super.routeInfo,
+    super.arguments,
+    super.key,
+    super.urlArguments,
+  });
+
+  @override
+  String toString() {
+    return "r(${super.toString()})";
+  }
+}
+
+final class NestedNomoPage<T> extends NomoPage<T> {
+  @override
+  String toString() {
+    return "n(${super.toString()})";
+  }
+
+  NestedNomoPage({
+    required super.routeInfo,
+    super.arguments,
+    super.key,
+    super.urlArguments,
+  });
 }

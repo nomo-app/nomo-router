@@ -8,48 +8,59 @@ import 'package:nomo_router/router/entities/routes/route_info.dart';
 import 'package:nomo_router/router/extensions.dart';
 import 'package:nomo_router/router/information_parser.dart';
 import 'package:nomo_router/router/nomo_navigator.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
+  usePathUrlStrategy();
+
   runApp(const MainApp());
 }
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class Routes {
-  static List<RouteInfo> get allRoutes => [
-        ...routes,
-        ...nestedRoutes,
-      ];
-
-  static List<RouteInfo> get routes => [
-        settingsRoute,
-      ];
-
-  static List<RouteInfo> get nestedRoutes => [
-        homeRoute,
-        testRoute,
-        testRoute2,
-      ];
-
-  static const settingsRoute = ModalRouteInfo(
-    name: "/settings",
-    page: SettingsModal(),
-  );
-
-  static const homeRoute = PageRouteInfo(
-    name: "/",
-    page: HomeScreen(),
-  );
-
-  static const testRoute = PageRouteInfo(
-    name: "/test",
-    page: TestScreen(),
-  );
-
-  static const testRoute2 = PageRouteInfo(
-    name: "/test/cool",
-    page: CoolScreen(),
-  );
+  static final routes = [
+    ModalRouteInfo(
+      name: "/settings",
+      page: SettingsModal(),
+    ),
+    NestedPageRouteInfo(
+      name: "/",
+      page: HomeScreen(),
+      wrapper: (nav) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Nested Navigator Cheese'),
+            leading: Builder(builder: (context) {
+              return IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.arrow_back),
+              );
+            }),
+          ),
+          body: nav,
+        );
+      },
+      children: const [
+        PageRouteInfo(
+          name: "/test",
+          page: TestScreen(),
+          children: [
+            PageRouteInfo(
+              name: "/cool",
+              page: CoolScreen(),
+            ),
+          ],
+        ),
+        ModalRouteInfo(
+          name: "/settingsNested",
+          page: SettingsModal(),
+        ),
+      ],
+    ),
+  ].expanded;
 }
 
 class MainApp extends StatelessWidget {
@@ -60,24 +71,13 @@ class MainApp extends StatelessWidget {
     final delegate = NomoRouterDelegate(
       rootNavigatorKey,
       routes: Routes.routes,
-      nestedRoutes: Routes.nestedRoutes,
-      nestedNavigatorWrapper: (nav) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Nested Navigator'),
-          ),
-          body: nav,
-        );
-      },
     );
 
     return NomoNavigator(
       delegate: delegate,
       child: MaterialApp.router(
         routerDelegate: delegate,
-        routeInformationParser: NomoRouteInformationParser(
-          nestedRoutes: Routes.nestedRoutes,
-        ),
+        routeInformationParser: const NomoRouteInformationParser(),
         backButtonDispatcher: RootBackButtonDispatcher(),
         routeInformationProvider: PlatformRouteInformationProvider(
           initialRouteInformation: RouteInformation(

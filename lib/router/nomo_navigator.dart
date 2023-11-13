@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:nomo_router/router/delegate.dart';
 import 'package:nomo_router/router/entities/pages/nomo_page.dart';
 import 'package:nomo_router/router/entities/routes/route_info.dart';
-import 'package:nomo_router/router/information_parser.dart';
 
 class NomoNavigator extends InheritedWidget {
   final NomoRouterDelegate delegate;
@@ -25,17 +24,15 @@ class NomoNavigator extends InheritedWidget {
     return oldWidget.delegate != delegate;
   }
 
-  void push(RouteInfo info, {Object? arguments, JsonMap? urlArguments}) {
-    delegate.pushRouteInfo(
-      info,
-      arguments: arguments,
-      urlArguments: urlArguments,
-    );
-  }
+  void push(RoutePath path) => delegate.pushRouteInfo(path);
 
-  void pop() {
-    delegate.popRoute();
-  }
+  void replace(RoutePath path) =>
+      throw UnimplementedError(); // delegate.replaceRouteInfo(path);
+
+  void popUntil(RoutePredicate predicate) =>
+      throw UnimplementedError(); // delegate.popUntil(predicate);
+
+  void pop() => delegate.pop;
 
   RouteInfo get current => delegate.current;
 }

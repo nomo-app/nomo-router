@@ -14,9 +14,30 @@ sealed class RouteInfo {
     this.children,
   });
 
-  int get depth => name.split('/').length - 1;
+  bool get isRoot => name == "/";
 
-  bool get isUnderyling => name.split('/').length > 1;
+  Iterable<RouteInfo> get underlying =>
+      children?.expand(
+        (routeInfo) => [
+          routeInfo.combine(this),
+          ...routeInfo.underlying,
+        ],
+      ) ??
+      [];
+
+  RouteInfo combine(RouteInfo other);
+
+  @override
+  int get hashCode => name.hashCode ^ page.hashCode ^ children.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RouteInfo &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          page == other.page &&
+          children == other.children;
 }
 
 enum ModalTransition {
@@ -30,6 +51,16 @@ final class PageRouteInfo extends RouteInfo {
     required super.page,
     super.children,
   });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return PageRouteInfo(
+      name: "${other.name}$name",
+      page: other.page,
+      children: other.children,
+    );
+  }
 }
 
 final class ModalRouteInfo extends RouteInfo {
@@ -40,5 +71,27 @@ final class ModalRouteInfo extends RouteInfo {
     required super.page,
     super.children,
     this.transition = ModalTransition.SLIDE,
+  });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return ModalRouteInfo(
+      name: "${other.name}$name",
+      page: other.page,
+      children: other.children,
+      transition: transition,
+    );
+  }
+}
+
+final class NestedPageRouteInfo extends PageRouteInfo {
+  final Widget Function(Widget nav) wrapper;
+
+  const NestedPageRouteInfo({
+    required super.name,
+    required super.page,
+    required this.wrapper,
+    super.children,
   });
 }

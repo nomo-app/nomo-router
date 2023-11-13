@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nomo_router/router/entities/pages/nomo_page.dart';
-import 'package:nomo_router/router/entities/routes/route_info.dart';
 import 'package:nomo_router/router/extensions.dart';
 
-typedef RouterConfiguration = (List<RouteSettings>, List<RouteSettings>);
+typedef RouterConfiguration = List<RouteSettings>;
 
 typedef JsonMap = Map<String, dynamic>;
 
@@ -12,11 +10,7 @@ const emptyRoute = RouteSettings(name: "/");
 
 class NomoRouteInformationParser
     extends RouteInformationParser<RouterConfiguration> {
-  final List<RouteInfo> nestedRoutes;
-
-  const NomoRouteInformationParser({
-    required this.nestedRoutes,
-  });
+  const NomoRouteInformationParser();
 
   @override
   Future<RouterConfiguration> parseRouteInformation(
@@ -26,60 +20,38 @@ class NomoRouteInformationParser
 
     if (uri.pathSegments.isEmpty) {
       return SynchronousFuture(
-        (
-          [const RouteSettings(name: '/')],
-          [const RouteSettings(name: '/')],
-        ),
+        [const RouteSettings(name: '/')],
       );
     }
 
-    final routeSettings = RouteSettings(
-      name: uri.path,
-      arguments: uri.queryParameters,
-    );
+    final paths = uri.pathSegments.map((e) => "/$e");
+    final args = uri.queryParameters;
 
-    final isNested = nestedRoutes.any(
-      (element) => element.name == routeSettings.name,
-    );
+    String currentPath = "";
 
-    return SynchronousFuture((
-      [
-        emptyRoute,
-        if (!isNested) routeSettings,
-      ],
-      [
-        emptyRoute,
-        if (isNested) routeSettings,
-      ],
-    ));
+    final config = [
+      const RouteSettings(name: '/'),
+      for (final path in paths)
+        () {
+          currentPath += path;
+          return RouteSettings(
+            name: currentPath,
+            arguments: paths.last == path ? args : null,
+          );
+        }.call()
+    ];
+
+    print("Restoring route information: $config");
+
+    return SynchronousFuture(config);
   }
 
   @override
   RouteInformation restoreRouteInformation(RouterConfiguration configuration) {
-    final (config, nestedConfig) = configuration as (
-      List<NomoPage>,
-      List<NomoPage>,
-    );
-
-    if (config.isEmpty || nestedConfig.isEmpty) {
+    if (configuration.isEmpty) {
       return RouteInformation(uri: "/".uri);
     }
 
-    if (config.isNotEmpty && config.length > 1) {
-      final page = config.last;
-      final path = page.name;
-      final arguments = page.urlArguments;
-      return RouteInformation(uri: Uri(path: path, queryParameters: arguments));
-    }
-
-    if (nestedConfig.isNotEmpty) {
-      final page = nestedConfig.last;
-
-      final path = page.name;
-      final arguments = page.urlArguments;
-      return RouteInformation(uri: Uri(path: path, queryParameters: arguments));
-    }
-
-    return RouteInformation(uri: config.last.name.uri);
+    return RouteInformation(uri: configuration.last.name.uri);
   }
 }

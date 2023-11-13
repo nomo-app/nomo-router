@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   nomo_router:
     path: ../
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
