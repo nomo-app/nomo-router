@@ -6,6 +6,7 @@ export './router/information_parser.dart';
 export './router/delegate.dart';
 export './router/extensions.dart';
 export './router/constants.dart';
+export './router/back_button_dispatcher.dart';
 
 // Providers
 export './router/providers/navigator_info_provider.dart';
