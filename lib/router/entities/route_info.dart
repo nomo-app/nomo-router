@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 sealed class RouteInfo {
   final String name;
   final Widget page;
-  final Iterable<RouteInfo>? children;
+  final List<RouteInfo>? children;
 
   const RouteInfo({
     required this.name,
@@ -93,5 +93,39 @@ final class NestedPageRouteInfo extends PageRouteInfo {
     required super.page,
     required this.wrapper,
     super.children,
+  });
+}
+
+///
+/// RouteInfos for Menu
+///
+
+final class MenuPageRouteInfo extends PageRouteInfo {
+  final String title;
+  final IconData? icon;
+  final ImageProvider? image;
+
+  const MenuPageRouteInfo({
+    required super.name,
+    required super.page,
+    required this.title,
+    this.icon,
+    this.image,
+    super.children,
+  });
+}
+
+final class MenuNestedPageRouteInfo extends MenuPageRouteInfo
+    implements NestedPageRouteInfo {
+  @override
+  final Widget Function(Widget nav) wrapper;
+  const MenuNestedPageRouteInfo({
+    required this.wrapper,
+    required super.name,
+    required super.page,
+    required super.title,
+    super.children,
+    super.icon,
+    super.image,
   });
 }

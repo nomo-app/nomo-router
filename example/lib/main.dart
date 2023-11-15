@@ -3,11 +3,7 @@ import 'package:example/pages/home.dart';
 import 'package:example/pages/settings.dart';
 import 'package:example/pages/test.dart';
 import 'package:flutter/material.dart';
-import 'package:nomo_router/router/delegate.dart';
-import 'package:nomo_router/router/entities/routes/route_info.dart';
-import 'package:nomo_router/router/extensions.dart';
-import 'package:nomo_router/router/information_parser.dart';
-import 'package:nomo_router/router/nomo_navigator.dart';
+import 'package:nomo_router/nomo_router.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
@@ -20,13 +16,13 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class Routes {
   static final routes = [
-    ModalRouteInfo(
+    const ModalRouteInfo(
       name: "/settings",
       page: SettingsModal(),
     ),
     NestedPageRouteInfo(
       name: "/",
-      page: HomeScreen(),
+      page: const HomeScreen(),
       wrapper: (nav) {
         return Scaffold(
           appBar: AppBar(

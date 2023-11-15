@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
-import 'package:nomo_router/router/entities/routes/route_info.dart';
 
 const notFound = PageRouteInfo(name: "/notFound", page: NotFound());
 
@@ -27,7 +26,8 @@ class NotFound extends StatelessWidget {
             ],
           ),
           GestureDetector(
-            onTap: () => NomoNavigator.of(context).push(RoutePath(name: "/")),
+            onTap: () =>
+                NomoNavigator.of(context).push(const RoutePath(name: "/")),
             child: const Padding(
               padding: EdgeInsets.all(4),
               child: Text(

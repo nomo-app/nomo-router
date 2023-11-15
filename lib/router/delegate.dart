@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nomo_router/router/entities/pages/nomo_page.dart';
-import 'package:nomo_router/router/entities/pages/not_found.dart';
-import 'package:nomo_router/router/entities/routes/route_info.dart';
-import 'package:nomo_router/router/information_parser.dart';
+import 'package:nomo_router/nomo_router.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
@@ -80,10 +77,13 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       nestedStackNotifier.value = nestedStack;
     }
 
-    return Navigator(
-      key: _navigatorKey,
-      onPopPage: _handlePopPage,
-      pages: rootStack,
+    return NomoNavigatorInformationProvider(
+      current: current,
+      child: Navigator(
+        key: _navigatorKey,
+        onPopPage: _handlePopPage,
+        pages: rootStack,
+      ),
     );
   }
 

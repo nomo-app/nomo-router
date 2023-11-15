@@ -41,8 +41,6 @@ class NomoRouteInformationParser
         }.call()
     ];
 
-    print("Restoring route information: $config");
-
     return SynchronousFuture(config);
   }
 

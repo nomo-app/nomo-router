@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nomo_router/router/entities/routes/route_info.dart';
+import 'package:nomo_router/router/entities/route_info.dart';
 import 'package:nomo_router/router/information_parser.dart';
-import 'package:nomo_router/router/nomo_navigator.dart';
+import 'package:nomo_router/router/providers/route_info_provider.dart';
 
 final class RoutePath extends RouteSettings {
   final JsonMap? urlArguments;

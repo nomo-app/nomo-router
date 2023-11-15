@@ -1,6 +1,6 @@
 import 'package:example/main.dart';
 import 'package:flutter/material.dart';
-import 'package:nomo_router/router/entities/pages/nomo_page.dart';
+import 'package:nomo_router/router/entities/nomo_page.dart';
 import 'package:nomo_router/router/nomo_navigator.dart';
 
 class HomeScreen extends StatelessWidget {
