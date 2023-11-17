@@ -27,7 +27,7 @@ class NotFound extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () =>
-                NomoNavigator.of(context).push(const RoutePath(name: "/")),
+                NomoNavigator.of(context).replace(const RoutePath(name: "/")),
             child: const Padding(
               padding: EdgeInsets.all(4),
               child: Text(

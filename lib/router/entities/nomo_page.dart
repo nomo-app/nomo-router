@@ -33,7 +33,7 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
             opaque: false,
             barrierColor: Colors.black12,
             barrierDismissible: true,
-            fullscreenDialog: true,
+            fullscreenDialog: false,
             transitionDuration: const Duration(milliseconds: 240),
             transitionsBuilder: (
               context,
@@ -41,8 +41,11 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
               secondaryAnimation,
               child,
             ) {
-              return FadeTransition(
-                opacity: animation,
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(animation),
                 child: child,
               );
             },
@@ -73,7 +76,8 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
                 child: routeInfo.page,
               );
             },
-          )
+          ),
+        _ => throw Exception("Unknown route type"),
       };
 
   @override

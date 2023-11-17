@@ -36,8 +36,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
                 if (!route.didPop(result)) {
                   return false;
                 }
-                onNestedConfigChanged(pages.sublist(0, pages.length - 1));
-                return true;
+                return pop();
               },
             );
           },
@@ -140,17 +139,6 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     return pop();
   }
 
-  void onNestedConfigChanged(List<NestedNomoPage> nestedConfig) {
-    nestedStackNotifier.value = nestedConfig;
-
-    _stack = [
-      nestedRouterPage,
-      ..._stack.sublist(1),
-    ];
-
-    notifyListeners();
-  }
-
   bool pop() {
     if (_stack.length <= 2) {
       return false;
@@ -169,7 +157,12 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       (route) => route.name == path.name,
     );
 
-    final isNested = nestedRoutes.contains(info);
+    final useRoot = switch (info) {
+      ModalRouteInfo info => info.useRootNavigator,
+      _ => false,
+    };
+
+    final isNested = nestedRoutes.contains(info) && !useRoot;
 
     final page = switch ((info, isNested)) {
       (null, _) => _pageFromRouteInfo(notFound),
@@ -188,6 +181,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     _stack.add(page);
 
     nestedStackNotifier.value = nestedStack;
+
+    print("Pushed $path");
+    print(_stack);
 
     notifyListeners();
   }

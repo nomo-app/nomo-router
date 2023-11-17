@@ -40,13 +40,18 @@ class Routes {
         );
       },
       children: const [
-        PageRouteInfo(
+        MenuPageRouteInfo(
           name: "/test",
+          title: "Test",
           page: TestScreen(),
           children: [
             PageRouteInfo(
               name: "/cool",
               page: CoolScreen(),
+            ),
+            ModalRouteInfo(
+              name: "/settingsNested",
+              page: SettingsModal(),
             ),
           ],
         ),
