@@ -5,6 +5,7 @@ import 'package:example/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:nomo_router/router/entities/transitions.dart';
 
 void main() {
   usePathUrlStrategy();
@@ -76,14 +77,14 @@ class MainApp extends StatelessWidget {
 
     return NomoNavigator(
       delegate: delegate,
+      defaultTransistion: const PageSharedAxisTransition(type: SharedAxisTransitionType.horizontal),
       child: MaterialApp.router(
         routerDelegate: delegate,
         routeInformationParser: const NomoRouteInformationParser(),
         backButtonDispatcher: RootBackButtonDispatcher(),
         routeInformationProvider: PlatformRouteInformationProvider(
           initialRouteInformation: RouteInformation(
-            uri:
-                WidgetsBinding.instance.platformDispatcher.defaultRouteName.uri,
+            uri: WidgetsBinding.instance.platformDispatcher.defaultRouteName.uri,
           ),
         ),
       ),

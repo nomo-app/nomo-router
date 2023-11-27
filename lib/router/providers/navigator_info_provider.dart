@@ -11,15 +11,15 @@ class NomoNavigatorInformationProvider extends InheritedWidget {
   });
 
   static RouteInfo of(BuildContext context) {
-    final NomoNavigatorInformationProvider? result = context
-        .dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
+    final NomoNavigatorInformationProvider? result =
+        context.dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
     assert(result != null, 'No RouteInfoProvider found in context');
     return result!.current;
   }
 
   static RouteInfo? maybeOf(BuildContext context) {
-    final NomoNavigatorInformationProvider? result = context
-        .dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
+    final NomoNavigatorInformationProvider? result =
+        context.dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
     return result?.current;
   }
 

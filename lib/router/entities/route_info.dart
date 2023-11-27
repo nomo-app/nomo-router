@@ -1,17 +1,20 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:flutter/widgets.dart';
+import 'package:nomo_router/router/entities/transitions.dart';
 
 @immutable
 sealed class RouteInfo {
   final String name;
   final Widget page;
   final List<RouteInfo>? children;
+  final PageTransition? transition;
 
   const RouteInfo({
     required this.name,
     required this.page,
     this.children,
+    this.transition,
   });
 
   bool get isRoot => name == "/";
@@ -41,16 +44,12 @@ sealed class RouteInfo {
           children == other.children;
 }
 
-enum ModalType {
-  BOTTOM_SHEET,
-  DIALOG,
-}
-
 final class PageRouteInfo extends RouteInfo {
   const PageRouteInfo({
     required super.name,
     required super.page,
     super.children,
+    super.transition,
   });
 
   @override
@@ -65,15 +64,14 @@ final class PageRouteInfo extends RouteInfo {
 }
 
 final class ModalRouteInfo extends RouteInfo {
-  final ModalType type;
   final bool useRootNavigator;
 
   const ModalRouteInfo({
     required super.name,
     required super.page,
     super.children,
+    super.transition,
     this.useRootNavigator = false,
-    this.type = ModalType.DIALOG,
   });
 
   @override
@@ -83,7 +81,6 @@ final class ModalRouteInfo extends RouteInfo {
       name: "${other.name}$name",
       page: page,
       children: children,
-      type: type,
       useRootNavigator: useRootNavigator,
     );
   }
@@ -97,6 +94,7 @@ final class NestedPageRouteInfo extends PageRouteInfo {
     required super.page,
     required this.wrapper,
     super.children,
+    super.transition,
   });
 }
 
@@ -119,11 +117,11 @@ final class MenuPageRouteInfo extends PageRouteInfo with MenuRouteInfoMixin {
     this.icon,
     this.image,
     super.children,
+    super.transition,
   });
 }
 
-final class MenuNestedPageRouteInfo extends MenuPageRouteInfo
-    implements NestedPageRouteInfo {
+final class MenuNestedPageRouteInfo extends MenuPageRouteInfo implements NestedPageRouteInfo {
   @override
   final Widget Function(Widget nav) wrapper;
   const MenuNestedPageRouteInfo({
@@ -134,6 +132,7 @@ final class MenuNestedPageRouteInfo extends MenuPageRouteInfo
     super.children,
     super.icon,
     super.image,
+    super.transition,
   });
 }
 
@@ -150,7 +149,7 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
     required super.page,
     required this.title,
     super.children,
-    super.type,
+    super.transition,
     super.useRootNavigator,
     this.icon,
     this.image,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nomo_router/router/entities/route_info.dart';
-import 'package:nomo_router/router/information_parser.dart';
-import 'package:nomo_router/router/providers/route_info_provider.dart';
+import 'package:nomo_router/nomo_router.dart';
 
 final class RoutePath extends RouteSettings {
   final JsonMap? urlArguments;
@@ -65,10 +63,8 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
               secondaryAnimation,
               child,
             ) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
+              final transition = routeInfo.transition ?? NomoNavigator.of(context).defaultTransistion;
+              return transition.getTransition(context, animation, secondaryAnimation, child);
             },
             pageBuilder: (context, _, __) {
               return RouteInfoProvider(
