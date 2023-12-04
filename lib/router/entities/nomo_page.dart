@@ -73,7 +73,6 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
               );
             },
           ),
-        _ => throw Exception("Unknown route type"),
       };
 
   @override

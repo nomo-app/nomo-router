@@ -58,8 +58,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   List<NomoPage> _stack = [];
 
-  List<NestedNomoPage> get nestedStack =>
-      _stack.whereType<NestedNomoPage>().toList();
+  List<NestedNomoPage> get nestedStack => _stack.whereType<NestedNomoPage>().toList();
 
   List<RootNomoPage> get rootStack => _stack.whereType<RootNomoPage>().toList();
 
@@ -181,9 +180,6 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     _stack.add(page);
 
     nestedStackNotifier.value = nestedStack;
-
-    print("Pushed $path");
-    print(_stack);
 
     notifyListeners();
   }
