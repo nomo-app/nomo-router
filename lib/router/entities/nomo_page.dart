@@ -73,6 +73,7 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
               );
             },
           ),
+        MenuRouteInfoMixin routeMixin => throw Exception("Should never be reached")
       };
 
   @override
