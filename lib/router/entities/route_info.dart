@@ -96,6 +96,17 @@ final class NestedPageRouteInfo extends PageRouteInfo {
     super.children,
     super.transition,
   });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return NestedPageRouteInfo(
+      name: "${other.name}$name",
+      page: page,
+      wrapper: wrapper,
+      children: children,
+    );
+  }
 }
 
 ///
@@ -119,9 +130,23 @@ final class MenuPageRouteInfo extends PageRouteInfo with MenuRouteInfoMixin {
     super.children,
     super.transition,
   });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return MenuPageRouteInfo(
+      name: "${other.name}$name",
+      page: page,
+      title: title,
+      icon: icon,
+      image: image,
+      children: children,
+    );
+  }
 }
 
-final class MenuNestedPageRouteInfo extends MenuPageRouteInfo implements NestedPageRouteInfo {
+final class MenuNestedPageRouteInfo extends MenuPageRouteInfo
+    implements NestedPageRouteInfo {
   @override
   final Widget Function(Widget nav) wrapper;
   const MenuNestedPageRouteInfo({
@@ -134,6 +159,20 @@ final class MenuNestedPageRouteInfo extends MenuPageRouteInfo implements NestedP
     super.image,
     super.transition,
   });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return MenuNestedPageRouteInfo(
+      name: "${other.name}$name",
+      page: page,
+      title: title,
+      icon: icon,
+      image: image,
+      wrapper: wrapper,
+      children: children,
+    );
+  }
 }
 
 final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
@@ -154,6 +193,20 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
     this.icon,
     this.image,
   });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return MenuModalRouteInfo(
+      name: "${other.name}$name",
+      page: page,
+      title: title,
+      icon: icon,
+      image: image,
+      children: children,
+      useRootNavigator: useRootNavigator,
+    );
+  }
 }
 
 mixin MenuRouteInfoMixin on RouteInfo {

@@ -15,10 +15,15 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   final Widget? initial;
 
+  final List<NavigatorObserver> observers;
+  final List<NavigatorObserver> nestedObservers;
+
   NomoRouterDelegate(
     this._navigatorKey, {
     this.initial,
     required Iterable<RouteInfo> routes,
+    this.observers = const [],
+    this.nestedObservers = const [],
   }) : assert(routes.isNotEmpty) {
     this.routes = [
       if (initial != null)
@@ -47,6 +52,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
             }
             return Navigator(
               pages: pages,
+              observers: nestedObservers,
               onPopPage: (route, result) {
                 if (!route.didPop(result)) {
                   return false;
@@ -88,8 +94,6 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    print("Rebuilding router delegate $_stack");
-
     /// If the root stack is empty, add the first page which contains the nested stack
     if (_stack.isEmpty) {
       final home = routes.singleWhereOrNull((route) => route.name == "/") ??
@@ -110,6 +114,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         key: _navigatorKey,
         onPopPage: _handlePopPage,
         pages: rootStack,
+        observers: observers,
       ),
     );
   }
