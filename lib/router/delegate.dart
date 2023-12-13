@@ -7,16 +7,28 @@ import 'package:collection/collection.dart';
 class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterConfiguration> {
   final GlobalKey<NavigatorState> _navigatorKey;
-  final Iterable<RouteInfo> routes;
+  late final Iterable<RouteInfo> routes;
   final nestedStackNotifier = ValueNotifier<List<NestedNomoPage>>([]);
 
   late final PageRouteInfo nestedRouterPageInfo;
   late final Iterable<RouteInfo> nestedRoutes;
 
+  final Widget? initial;
+
   NomoRouterDelegate(
     this._navigatorKey, {
-    required this.routes,
+    this.initial,
+    required Iterable<RouteInfo> routes,
   }) : assert(routes.isNotEmpty) {
+    this.routes = [
+      if (initial != null)
+        PageRouteInfo(
+          name: "/",
+          page: initial!,
+        ),
+      ...routes,
+    ];
+
     final nestedPageRoute = routes.whereType<NestedPageRouteInfo>().first;
 
     nestedRoutes = [
@@ -30,6 +42,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         ValueListenableBuilder(
           valueListenable: nestedStackNotifier,
           builder: (context, pages, child) {
+            if (pages.isEmpty) {
+              return const SizedBox();
+            }
             return Navigator(
               pages: pages,
               onPopPage: (route, result) {
@@ -58,7 +73,8 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   List<NomoPage> _stack = [];
 
-  List<NestedNomoPage> get nestedStack => _stack.whereType<NestedNomoPage>().toList();
+  List<NestedNomoPage> get nestedStack =>
+      _stack.whereType<NestedNomoPage>().toList();
 
   List<RootNomoPage> get rootStack => _stack.whereType<RootNomoPage>().toList();
 
@@ -66,13 +82,26 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     return _stack.last.routeInfo;
   }
 
+  bool get containsNestedRouterPage {
+    return _stack.map((page) => page.routeInfo).contains(nestedRouterPageInfo);
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("Rebuilding router delegate $_stack");
+
     /// If the root stack is empty, add the first page which contains the nested stack
     if (_stack.isEmpty) {
-      _stack.add(nestedRouterPage);
-      _stack.add(_nestedPageFromRouteInfo(nestedRoutes.first));
-      nestedStackNotifier.value = nestedStack;
+      final home = routes.singleWhereOrNull((route) => route.name == "/") ??
+          routes.first;
+      final isNested = nestedRoutes.contains(home);
+      if (isNested) {
+        _stack.add(nestedRouterPage);
+        _stack.add(_nestedPageFromRouteInfo(home));
+        nestedStackNotifier.value = nestedStack;
+      } else {
+        _stack.add(_pageFromRouteInfo(home));
+      }
     }
 
     return NomoNavigatorInformationProvider(
@@ -89,18 +118,22 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   Future<void> setNewRoutePath(RouterConfiguration configuration) async {
     var newStack = <NomoPage>[];
 
+    bool containtsNestedRouterPage(List<NomoPage> stack) {
+      return stack.map((page) => page.routeInfo).contains(nestedRouterPageInfo);
+    }
+
     for (final route in configuration) {
       final routeInfo = routes.singleWhereOrNull(
         (element) => element.name == route.name,
       );
 
       if (routeInfo == null) {
-        break;
+        continue;
       }
 
       final isNested = nestedRoutes.contains(routeInfo);
 
-      if (route.name == "/") {
+      if (isNested && !containtsNestedRouterPage(newStack)) {
         newStack.add(nestedRouterPage);
         newStack.add(_nestedPageFromRouteInfo(routeInfo));
         continue;
@@ -129,9 +162,13 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   }
 
   bool _handlePopPage(Route route, dynamic result) {
-    if (_stack.length <= 2) {
+    if (containsNestedRouterPage && _stack.length <= 2) {
       return false;
     }
+    if (!containsNestedRouterPage && _stack.length <= 1) {
+      return false;
+    }
+
     if (!route.didPop(result)) {
       return false;
     }
@@ -139,10 +176,18 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   }
 
   bool pop() {
-    if (_stack.length <= 2) {
+    if (containsNestedRouterPage && _stack.length <= 2) {
       return false;
     }
+    if (!containsNestedRouterPage && _stack.length <= 1) {
+      return false;
+    }
+
     _stack.removeLast();
+
+    if (nestedStack.isEmpty && containsNestedRouterPage) {
+      _stack.removeLast();
+    }
 
     nestedStackNotifier.value = nestedStack;
 
@@ -177,6 +222,10 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         ),
     };
 
+    if (isNested && !containsNestedRouterPage) {
+      _stack.add(nestedRouterPage);
+    }
+
     _stack.add(page);
 
     nestedStackNotifier.value = nestedStack;
@@ -204,6 +253,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       routeInfo: route,
       arguments: arguments,
       urlArguments: urlArguments,
+      key: UniqueKey(),
     );
   }
 
@@ -216,6 +266,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       routeInfo: route,
       arguments: arguments,
       urlArguments: urlArguments,
+      key: UniqueKey(),
     );
   }
 }
