@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 
@@ -13,6 +15,14 @@ final class RoutePath extends RouteSettings {
 
 sealed class NomoPage<T> extends Page<T> implements RoutePath {
   final RouteInfo routeInfo;
+
+  final Completer<T> _popCompleter = Completer<T>();
+
+  Future<T> get popped => _popCompleter.future;
+
+  void didPop([T? result]) {
+    _popCompleter.complete(result);
+  }
 
   @override
   final JsonMap? urlArguments;
@@ -63,8 +73,10 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
               secondaryAnimation,
               child,
             ) {
-              final transition = routeInfo.transition ?? NomoNavigator.of(context).defaultTransistion;
-              return transition.getTransition(context, animation, secondaryAnimation, child);
+              final transition = routeInfo.transition ??
+                  NomoNavigator.of(context).defaultTransistion;
+              return transition.getTransition(
+                  context, animation, secondaryAnimation, child);
             },
             pageBuilder: (context, _, __) {
               return RouteInfoProvider(
@@ -73,7 +85,8 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
               );
             },
           ),
-        MenuRouteInfoMixin routeMixin => throw Exception("Should never be reached")
+        MenuRouteInfoMixin routeMixin =>
+          throw Exception("Should never be reached")
       };
 
   @override

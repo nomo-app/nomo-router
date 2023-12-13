@@ -16,7 +16,8 @@ class NomoNavigator extends InheritedWidget {
   });
 
   static NomoNavigator of(BuildContext context) {
-    final NomoNavigator? result = context.dependOnInheritedWidgetOfExactType<NomoNavigator>();
+    final NomoNavigator? result =
+        context.dependOnInheritedWidgetOfExactType<NomoNavigator>();
     assert(result != null, 'No RouteInfoProvider found in context');
     return result!;
   }
@@ -26,13 +27,14 @@ class NomoNavigator extends InheritedWidget {
     return oldWidget.delegate != delegate;
   }
 
-  void push(RoutePath path) => delegate.push(path);
+  Future<T> push<T>(RoutePath path) => delegate.push(path);
 
   void replace(RoutePath path) => delegate.replace(path);
 
-  void popUntil(bool Function(NomoPage) predicate) => delegate.popUntil(predicate);
+  void popUntil(bool Function(NomoPage) predicate) =>
+      delegate.popUntil(predicate);
 
-  void pop() => delegate.pop;
+  bool pop<T>([T? result]) => delegate.pop(result);
 
   RouteInfo get current => delegate.current;
 }

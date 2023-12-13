@@ -177,10 +177,10 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     if (!route.didPop(result)) {
       return false;
     }
-    return pop();
+    return pop(result);
   }
 
-  bool pop() {
+  bool pop<T>([T? result]) {
     if (containsNestedRouterPage && _stack.length <= 2) {
       return false;
     }
@@ -188,7 +188,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       return false;
     }
 
-    _stack.removeLast();
+    _stack.removeLast().didPop(result);
 
     if (nestedStack.isEmpty && containsNestedRouterPage) {
       _stack.removeLast();
@@ -201,7 +201,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     return true;
   }
 
-  void push(RoutePath path) {
+  Future<T> push<T>(RoutePath path) {
     final info = routes.singleWhereOrNull(
       (route) => route.name == path.name,
     );
@@ -214,13 +214,13 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     final isNested = nestedRoutes.contains(info) && !useRoot;
 
     final page = switch ((info, isNested)) {
-      (null, _) => _pageFromRouteInfo(notFound),
-      (RouteInfo info, true) => _nestedPageFromRouteInfo(
+      (null, _) => _pageFromRouteInfo<T>(notFound),
+      (RouteInfo info, true) => _nestedPageFromRouteInfo<T>(
           info,
           urlArguments: path.urlArguments,
           arguments: path.arguments,
         ),
-      (RouteInfo info, false) => _pageFromRouteInfo(
+      (RouteInfo info, false) => _pageFromRouteInfo<T>(
           info,
           urlArguments: path.urlArguments,
           arguments: path.arguments,
@@ -236,6 +236,8 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     nestedStackNotifier.value = nestedStack;
 
     notifyListeners();
+
+    return page.popped;
   }
 
   void replace(RoutePath path) {
@@ -249,7 +251,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     }
   }
 
-  NomoPage _pageFromRouteInfo(
+  NomoPage<T> _pageFromRouteInfo<T>(
     RouteInfo route, {
     Object? arguments,
     JsonMap? urlArguments,
@@ -262,7 +264,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     );
   }
 
-  NestedNomoPage _nestedPageFromRouteInfo(
+  NestedNomoPage<T> _nestedPageFromRouteInfo<T>(
     RouteInfo route, {
     Object? arguments,
     JsonMap? urlArguments,
