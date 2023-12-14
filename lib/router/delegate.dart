@@ -34,35 +34,37 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       ...routes,
     ];
 
-    final nestedPageRoute = routes.whereType<NestedPageRouteInfo>().first;
+    final nestedPageRoute = routes.whereType<NestedPageRouteInfo>().firstOrNull;
 
     nestedRoutes = [
-      nestedPageRoute,
-      ...nestedPageRoute.underlying,
+      if (nestedPageRoute != null) ...[
+        nestedPageRoute,
+        ...nestedPageRoute.underlying,
+      ]
     ];
+
+    final nestedNav = ValueListenableBuilder(
+      valueListenable: nestedStackNotifier,
+      builder: (context, pages, child) {
+        if (pages.isEmpty) {
+          return const SizedBox();
+        }
+        return Navigator(
+          pages: pages,
+          observers: nestedObservers,
+          onPopPage: (route, result) {
+            if (!route.didPop(result)) {
+              return false;
+            }
+            return pop();
+          },
+        );
+      },
+    );
 
     nestedRouterPageInfo = PageRouteInfo(
       name: "/",
-      page: nestedPageRoute.wrapper(
-        ValueListenableBuilder(
-          valueListenable: nestedStackNotifier,
-          builder: (context, pages, child) {
-            if (pages.isEmpty) {
-              return const SizedBox();
-            }
-            return Navigator(
-              pages: pages,
-              observers: nestedObservers,
-              onPopPage: (route, result) {
-                if (!route.didPop(result)) {
-                  return false;
-                }
-                return pop();
-              },
-            );
-          },
-        ),
-      ),
+      page: nestedPageRoute?.wrapper(nestedNav) ?? nestedNav,
     );
   }
 
