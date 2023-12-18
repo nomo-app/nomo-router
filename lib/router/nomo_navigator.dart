@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:nomo_router/router/delegate.dart';
 import 'package:nomo_router/router/entities/nomo_page.dart';
+import 'package:nomo_router/router/entities/route.dart';
 import 'package:nomo_router/router/entities/route_info.dart';
 import 'package:nomo_router/router/entities/transitions.dart';
 
@@ -27,9 +28,9 @@ class NomoNavigator extends InheritedWidget {
     return oldWidget.delegate != delegate;
   }
 
-  Future<T> push<T>(RoutePath path) => delegate.push(path);
+  Future<T> push<T>(AppRoute route) => delegate.push(route);
 
-  void replace(RoutePath path) => delegate.replace(path);
+  void replace(AppRoute route) => delegate.replace(route);
 
   void popUntil(bool Function(NomoPage) predicate) =>
       delegate.popUntil(predicate);

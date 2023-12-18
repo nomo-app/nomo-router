@@ -1,6 +1,7 @@
 import 'package:example/main.dart';
+import 'package:example/pages/test.dart';
+import 'package:example/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:nomo_router/router/entities/nomo_page.dart';
 import 'package:nomo_router/router/nomo_navigator.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -26,13 +27,23 @@ class RouteSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        for (final r in Routes.routes)
+        for (final r in appRouter.routeInfos)
           ElevatedButton(
             onPressed: () {
-              NomoNavigator.of(context).push(RoutePath(name: r.name));
+              NomoNavigator.of(context).push(
+                appRouter.getRouteForPath(r.name)(),
+              );
             },
             child: Text(r.name),
           ),
+        ElevatedButton(
+          onPressed: () {
+            NomoNavigator.of(context).push(TestScreenRoute(
+              id: TestEnum.two,
+            ));
+          },
+          child: Text("Test with Id"),
+        ),
       ],
     );
   }

@@ -2,15 +2,25 @@
 import 'package:example/pages/home.dart';
 import 'package:flutter/widgets.dart';
 
+enum TestEnum {
+  one,
+  two,
+  three,
+}
+
 class TestScreen extends StatelessWidget {
-  const TestScreen({Key? key}) : super(key: key);
+  final TestEnum id;
+
+  const TestScreen({
+    this.id = TestEnum.one,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Center(
-          child: Text('Test SCreen'),
+          child: Text('Test SCreen: $id'),
         ),
         RouteSelector(),
       ],

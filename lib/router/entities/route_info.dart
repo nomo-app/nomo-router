@@ -6,7 +6,7 @@ import 'package:nomo_router/router/entities/transitions.dart';
 @immutable
 sealed class RouteInfo {
   final String name;
-  final Widget page;
+  final Type page;
   final List<RouteInfo>? children;
   final PageTransition? transition;
 

@@ -2,19 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
+import 'package:nomo_router/router/entities/route.dart';
 
-final class RoutePath extends RouteSettings {
-  final JsonMap? urlArguments;
-
-  const RoutePath({
-    required super.name,
-    this.urlArguments,
-    super.arguments,
-  });
-}
-
-sealed class NomoPage<T> extends Page<T> implements RoutePath {
+sealed class NomoPage<T> extends Page {
   final RouteInfo routeInfo;
+  final AppRoute route;
 
   final Completer<T> _popCompleter = Completer<T>();
 
@@ -24,11 +16,11 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
     _popCompleter.complete(result);
   }
 
-  @override
   final JsonMap? urlArguments;
 
   NomoPage({
     required this.routeInfo,
+    required this.route,
     this.urlArguments,
     super.arguments,
     super.key,
@@ -36,37 +28,40 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
 
   @override
   Route<T> createRoute(BuildContext context) => switch (routeInfo) {
-        ModalRouteInfo routeInfo => PageRouteBuilder(
+        ModalRouteInfo _ => NomoModalRoute(
+            context: context,
             settings: this,
-            opaque: false,
             barrierColor: Colors.black12,
             barrierDismissible: true,
-            fullscreenDialog: false,
             transitionDuration: const Duration(milliseconds: 240),
-            transitionsBuilder: (
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-            ) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 1),
-                  end: Offset.zero,
-                ).animate(animation),
+            transitionBuilder: (context, animation, secondaryAnimation, child) {
+              // TODO Add Transitions
+              // return SlideTransition(
+              //   position: Tween<Offset>(
+              //     begin: const Offset(0, 1),
+              //     end: Offset.zero,
+              //   ).animate(animation),
+              //   child: child,
+              // );
+              return FadeTransition(
+                opacity: animation,
                 child: child,
               );
             },
-            pageBuilder: (context, _, __) {
+            builder: (
+              context,
+            ) {
               return RouteInfoProvider(
                 route: this,
-                child: routeInfo.page,
+                child: route.page,
               );
             },
           ),
         PageRouteInfo routeInfo => PageRouteBuilder(
             settings: this,
             transitionDuration: const Duration(milliseconds: 240),
+            maintainState: true,
+            opaque: true,
             transitionsBuilder: (
               context,
               animation,
@@ -76,17 +71,20 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
               final transition = routeInfo.transition ??
                   NomoNavigator.of(context).defaultTransistion;
               return transition.getTransition(
-                  context, animation, secondaryAnimation, child);
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              );
             },
             pageBuilder: (context, _, __) {
               return RouteInfoProvider(
                 route: this,
-                child: routeInfo.page,
+                child: route.page,
               );
             },
           ),
-        MenuRouteInfoMixin routeMixin =>
-          throw Exception("Should never be reached")
+        MenuRouteInfoMixin _ => throw Exception("Should never be reached")
       };
 
   @override
@@ -98,6 +96,7 @@ sealed class NomoPage<T> extends Page<T> implements RoutePath {
 final class RootNomoPage<T> extends NomoPage<T> {
   RootNomoPage({
     required super.routeInfo,
+    required super.route,
     super.arguments,
     super.key,
     super.urlArguments,
@@ -117,8 +116,36 @@ final class NestedNomoPage<T> extends NomoPage<T> {
 
   NestedNomoPage({
     required super.routeInfo,
+    required super.route,
     super.arguments,
     super.key,
     super.urlArguments,
   });
+}
+
+class NomoModalRoute<T> extends RawDialogRoute<T> {
+  NomoModalRoute({
+    required BuildContext context,
+    required WidgetBuilder builder,
+    super.barrierColor = Colors.black54,
+    super.barrierDismissible,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    super.settings,
+    super.anchorPoint,
+    super.traversalEdgeBehavior,
+    super.transitionBuilder,
+    super.transitionDuration,
+  }) : super(
+          pageBuilder: (
+            BuildContext buildContext,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) {
+            final Widget pageChild = Builder(builder: builder);
+            return pageChild;
+          },
+          barrierLabel: barrierLabel ??
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        );
 }
