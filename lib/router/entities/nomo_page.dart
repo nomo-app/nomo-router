@@ -24,7 +24,7 @@ sealed class NomoPage<T> extends Page {
     this.urlArguments,
     super.arguments,
     super.key,
-  }) : super(name: routeInfo.name);
+  }) : super(name: routeInfo.path);
 
   @override
   Route<T> createRoute(BuildContext context) => switch (routeInfo) {
@@ -35,25 +35,26 @@ sealed class NomoPage<T> extends Page {
             barrierDismissible: true,
             transitionDuration: const Duration(milliseconds: 240),
             transitionBuilder: (context, animation, secondaryAnimation, child) {
-              // TODO Add Transitions
-              // return SlideTransition(
-              //   position: Tween<Offset>(
-              //     begin: const Offset(0, 1),
-              //     end: Offset.zero,
-              //   ).animate(animation),
-              //   child: child,
-              // );
-              return FadeTransition(
-                opacity: animation,
-                child: child,
+              final transition = routeInfo.transition ??
+                  NomoNavigator.of(context).defaultModalTransistion;
+              return transition.getTransition(
+                context,
+                animation,
+                secondaryAnimation,
+                child,
               );
             },
             builder: (
               context,
             ) {
-              return RouteInfoProvider(
-                route: this,
-                child: route.page,
+              return PopScope(
+                onPopInvoked: (didPop) {
+                  print("asdasd");
+                },
+                child: RouteInfoProvider(
+                  route: this,
+                  child: route.page,
+                ),
               );
             },
           ),
@@ -89,7 +90,7 @@ sealed class NomoPage<T> extends Page {
 
   @override
   String toString() {
-    return routeInfo.name;
+    return routeInfo.path;
   }
 }
 
@@ -127,8 +128,6 @@ class NomoModalRoute<T> extends RawDialogRoute<T> {
   NomoModalRoute({
     required BuildContext context,
     required WidgetBuilder builder,
-    super.barrierColor = Colors.black54,
-    super.barrierDismissible,
     String? barrierLabel,
     bool useSafeArea = true,
     super.settings,
@@ -136,15 +135,15 @@ class NomoModalRoute<T> extends RawDialogRoute<T> {
     super.traversalEdgeBehavior,
     super.transitionBuilder,
     super.transitionDuration,
+    super.barrierColor,
+    super.barrierDismissible,
   }) : super(
           pageBuilder: (
             BuildContext buildContext,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) {
-            final Widget pageChild = Builder(builder: builder);
-            return pageChild;
-          },
+            Animation<double> _,
+            Animation<double> __,
+          ) =>
+              builder(buildContext),
           barrierLabel: barrierLabel ??
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
         );

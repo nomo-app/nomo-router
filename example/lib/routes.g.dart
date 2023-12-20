@@ -10,14 +10,20 @@ class AppRouter extends NomoAppRouter {
   AppRouter()
       : super(
           {
-            '/': ([a]) => HomeScreenRoute(),
-            '/test': ([a]) {
+            HomeScreenRoute.path: ([a]) => HomeScreenRoute(),
+            TestScreenRoute.path: ([a]) {
               final typedArgs = a as TestScreenArguments?;
               return TestScreenRoute(
                 id: typedArgs?.id ?? TestEnum.one,
               );
             },
-            '/settings': ([a]) {
+            SettingsModalNestedRoute.path: ([a]) {
+              final typedArgs = a as SettingsModalNestedArguments?;
+              return SettingsModalNestedRoute(
+                id: typedArgs?.id,
+              );
+            },
+            SettingsModalRoute.path: ([a]) {
               final typedArgs = a as SettingsModalArguments?;
               return SettingsModalRoute(
                 id: typedArgs?.id,
@@ -38,6 +44,7 @@ class HomeScreenRoute extends AppRoute implements HomeScreenArguments {
           name: '/',
           page: HomeScreen(),
         );
+  static String path = '/';
 }
 
 class TestScreenArguments {
@@ -58,6 +65,29 @@ class TestScreenRoute extends AppRoute implements TestScreenArguments {
             id: id,
           ),
         );
+  static String path = '/test';
+}
+
+class SettingsModalNestedArguments {
+  final String? id;
+  const SettingsModalNestedArguments({
+    this.id,
+  });
+}
+
+class SettingsModalNestedRoute extends AppRoute
+    implements SettingsModalNestedArguments {
+  @override
+  final String? id;
+  SettingsModalNestedRoute({
+    this.id,
+  }) : super(
+          name: '/nestedSettings',
+          page: SettingsModal(
+            id: id,
+          ),
+        );
+  static String path = '/nestedSettings';
 }
 
 class SettingsModalArguments {
@@ -78,4 +108,5 @@ class SettingsModalRoute extends AppRoute implements SettingsModalArguments {
             id: id,
           ),
         );
+  static String path = '/settings';
 }

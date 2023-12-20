@@ -27,9 +27,11 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     final expandedRoutes = expandRoutes(routesList ?? []);
 
     final routes = expandedRoutes.map((listItem) {
-      final path = listItem["name"]?.toStringValue() ?? "";
+      final path = listItem["path"]?.toStringValue() ?? "";
 
       final pageType = listItem["page"]?.toTypeValue() as ParameterizedType;
+      final namePostFix = listItem["routePostfix"]?.toStringValue() ?? "";
+      final name = pageType.getDisplayString(withNullability: false);
       final classElement = pageType.element as ClassElement;
       final args = [
         for (final field in classElement.fields)
@@ -51,11 +53,7 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
           .mapIndexed((index, args) => (args.$1, args.$2, defaultValues[index]))
           .toList();
 
-      return (
-        pageType.getDisplayString(withNullability: false),
-        path,
-        argsWithValues
-      );
+      return (name, namePostFix, path, argsWithValues);
     });
 
     final buffer = StringBuffer();
@@ -68,13 +66,15 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     buffer.writeln("AppRouter() : super(");
     buffer.writeln("{");
     for (final route in routes) {
-      if (route.$3.isEmpty)
-        buffer.writeln("'${route.$2}': ([a]) => ${route.$1}Route(),");
+      final name = "${route.$1}${route.$2}";
+
+      if (route.$4.isEmpty)
+        buffer.writeln("${name}Route.path: ([a]) => ${name}Route(),");
       else {
-        buffer.writeln("'${route.$2}': ([a]) {");
-        buffer.writeln("final typedArgs = a as ${route.$1}Arguments?;");
-        buffer.writeln("return ${route.$1}Route(");
-        for (final field in route.$3) {
+        buffer.writeln("${name}Route.path: ([a]) {");
+        buffer.writeln("final typedArgs = a as ${name}Arguments?;");
+        buffer.writeln("return ${name}Route(");
+        for (final field in route.$4) {
           if (field.$3 != null)
             buffer.write("${field.$2}: typedArgs?.${field.$2} ?? ${field.$3},");
           else
@@ -104,13 +104,15 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
   /// void expanded Routes
   ///
   void genRoute(
-    (String, String, List<(String, String, String?)>) route,
+    (String, String, String, List<(String, String, String?)>) route,
     StringBuffer buffer,
   ) {
-    final (name, path, args) = route;
+    final (name, postFix, path, args) = route;
+
+    final nameWithPostFix = "${name}${postFix}";
 
     /// Args
-    buffer.writeln("class ${name}Arguments {");
+    buffer.writeln("class ${nameWithPostFix}Arguments {");
 
     for (final field in args) {
       buffer.writeln("final ${field.$1} ${field.$2};");
@@ -118,7 +120,7 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
 
     // Constructor
 
-    buffer.writeln("const ${name}Arguments(");
+    buffer.writeln("const ${nameWithPostFix}Arguments(");
     if (args.isNotEmpty) buffer.writeln("{");
     for (final field in args) {
       if (field.$3 != null) {
@@ -134,13 +136,13 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     /// Route
 
     buffer.writeln(
-        "class ${name}Route extends AppRoute implements ${name}Arguments {");
+        "class ${nameWithPostFix}Route extends AppRoute implements ${nameWithPostFix}Arguments {");
     for (final field in args) {
       buffer.writeln("@override");
       buffer.writeln("final ${field.$1} ${field.$2};");
     }
 
-    buffer.writeln("${name}Route(");
+    buffer.writeln("${nameWithPostFix}Route(");
     if (args.isNotEmpty) buffer.writeln("{");
     for (final field in args) {
       if (field.$3 != null)
@@ -158,6 +160,10 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     }
     buffer.writeln("),");
     buffer.writeln(");");
+
+    // static name
+    buffer.writeln("static String path = '$path';");
+
     buffer.writeln("}");
   }
 }

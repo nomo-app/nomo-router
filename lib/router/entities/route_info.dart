@@ -5,19 +5,21 @@ import 'package:nomo_router/router/entities/transitions.dart';
 
 @immutable
 sealed class RouteInfo {
-  final String name;
+  final String path;
   final Type page;
   final List<RouteInfo>? children;
   final PageTransition? transition;
+  final String? routePostfix;
 
   const RouteInfo({
-    required this.name,
+    required this.path,
     required this.page,
+    this.routePostfix,
     this.children,
     this.transition,
   });
 
-  bool get isRoot => name == "/";
+  bool get isRoot => path == "/";
 
   Iterable<RouteInfo> get underlying {
     if (children == null) return [];
@@ -32,22 +34,23 @@ sealed class RouteInfo {
   RouteInfo combine(RouteInfo other);
 
   @override
-  int get hashCode => name.hashCode ^ page.hashCode ^ children.hashCode;
+  int get hashCode => path.hashCode ^ page.hashCode ^ children.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RouteInfo &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
+          path == other.path &&
           page == other.page &&
           children == other.children;
 }
 
 final class PageRouteInfo extends RouteInfo {
   const PageRouteInfo({
-    required super.name,
+    required super.path,
     required super.page,
+    super.routePostfix,
     super.children,
     super.transition,
   });
@@ -56,7 +59,7 @@ final class PageRouteInfo extends RouteInfo {
   RouteInfo combine(RouteInfo other) {
     if (other.isRoot) return this;
     return PageRouteInfo(
-      name: "${other.name}$name",
+      path: "${other.path}$path",
       page: page,
       children: children,
     );
@@ -67,18 +70,19 @@ final class ModalRouteInfo extends RouteInfo {
   final bool useRootNavigator;
 
   const ModalRouteInfo({
-    required super.name,
+    required super.path,
     required super.page,
     super.children,
     super.transition,
-    this.useRootNavigator = false,
+    super.routePostfix,
+    this.useRootNavigator = true,
   });
 
   @override
   RouteInfo combine(RouteInfo other) {
     if (other.isRoot) return this;
     return ModalRouteInfo(
-      name: "${other.name}$name",
+      path: "${other.path}$path",
       page: page,
       children: children,
       useRootNavigator: useRootNavigator,
@@ -90,18 +94,19 @@ final class NestedPageRouteInfo extends PageRouteInfo {
   final Widget Function(Widget nav) wrapper;
 
   const NestedPageRouteInfo({
-    required super.name,
+    required super.path,
     required super.page,
     required this.wrapper,
     super.children,
     super.transition,
+    super.routePostfix,
   });
 
   @override
   RouteInfo combine(RouteInfo other) {
     if (other.isRoot) return this;
     return NestedPageRouteInfo(
-      name: "${other.name}$name",
+      path: "${other.path}$path",
       page: page,
       wrapper: wrapper,
       children: children,
@@ -122,20 +127,21 @@ final class MenuPageRouteInfo extends PageRouteInfo with MenuRouteInfoMixin {
   final ImageProvider? image;
 
   const MenuPageRouteInfo({
-    required super.name,
+    required super.path,
     required super.page,
     required this.title,
     this.icon,
     this.image,
     super.children,
     super.transition,
+    super.routePostfix,
   });
 
   @override
   RouteInfo combine(RouteInfo other) {
     if (other.isRoot) return this;
     return MenuPageRouteInfo(
-      name: "${other.name}$name",
+      path: "${other.path}$path",
       page: page,
       title: title,
       icon: icon,
@@ -151,20 +157,21 @@ final class MenuNestedPageRouteInfo extends MenuPageRouteInfo
   final Widget Function(Widget nav) wrapper;
   const MenuNestedPageRouteInfo({
     required this.wrapper,
-    required super.name,
+    required super.path,
     required super.page,
     required super.title,
     super.children,
     super.icon,
     super.image,
     super.transition,
+    super.routePostfix,
   });
 
   @override
   RouteInfo combine(RouteInfo other) {
     if (other.isRoot) return this;
     return MenuNestedPageRouteInfo(
-      name: "${other.name}$name",
+      path: "${other.path}$path",
       page: page,
       title: title,
       icon: icon,
@@ -184,12 +191,13 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
   final ImageProvider? image;
 
   const MenuModalRouteInfo({
-    required super.name,
+    required super.path,
     required super.page,
     required this.title,
     super.children,
     super.transition,
     super.useRootNavigator,
+    super.routePostfix,
     this.icon,
     this.image,
   });
@@ -198,7 +206,7 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
   RouteInfo combine(RouteInfo other) {
     if (other.isRoot) return this;
     return MenuModalRouteInfo(
-      name: "${other.name}$name",
+      path: "${other.path}$path",
       page: page,
       title: title,
       icon: icon,

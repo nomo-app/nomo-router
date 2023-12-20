@@ -27,7 +27,9 @@ class MainApp extends StatelessWidget {
     return NomoNavigator(
       delegate: delegate,
       defaultTransistion: const PageSharedAxisTransition(
-          type: SharedAxisTransitionType.horizontal),
+        type: SharedAxisTransitionType.horizontal,
+      ),
+      defaultModalTransistion: PageSlideTransition(),
       child: MaterialApp.router(
         routerDelegate: delegate,
         routeInformationParser: const NomoRouteInformationParser(),

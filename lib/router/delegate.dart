@@ -52,7 +52,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     routeInfos = [
       if (initial != null)
         PageRouteInfo(
-          name: "/",
+          path: "/",
           page: initial!.runtimeType,
         ),
       ...appRouter.routeInfos,
@@ -88,7 +88,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     );
 
     nestedRouterPageInfo = const PageRouteInfo(
-      name: "/",
+      path: "/",
       page: Object, // Can be anything since we dont generate this route
     );
 
@@ -128,9 +128,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   Widget build(BuildContext context) {
     /// If the root stack is empty, add the first page which contains the nested stack
     if (_stack.isEmpty) {
-      final home = routeInfos.singleWhereOrNull((route) => route.name == "/") ??
+      final home = routeInfos.singleWhereOrNull((route) => route.path == "/") ??
           routeInfos.first;
-      final homeRoute = appRouter.getRouteForPath(home.name)();
+      final homeRoute = appRouter.getRouteForPath(home.path)();
       final isNested = nestedRoutes.contains(home);
       if (isNested) {
         _stack.add(nestedRouterPage);
@@ -164,14 +164,14 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
     for (final routeSettings in configuration) {
       final routeInfo = routeInfos.singleWhereOrNull(
-        (element) => element.name == routeSettings.name,
+        (element) => element.path == routeSettings.name,
       );
 
       if (routeInfo == null) {
         continue;
       }
 
-      final route = appRouter.getRouteForPath(routeInfo.name)();
+      final route = appRouter.getRouteForPath(routeInfo.path)();
 
       final isNested = nestedRoutes.contains(routeInfo);
 
@@ -206,16 +206,24 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   }
 
   bool _handlePopPage(Route route, dynamic result) {
-    if (containsNestedRouterPage && _stack.length <= 2) {
-      return false;
-    }
-    if (!containsNestedRouterPage && _stack.length <= 1) {
-      return false;
-    }
-
     if (!route.didPop(result)) {
       return false;
     }
+
+    final routeInfo = routeInfos.singleWhereOrNull(
+      (element) => element.path == route.settings.name,
+    );
+
+    if (routeInfo == null) {
+      return false;
+    }
+
+    if (routeInfo is ModalRouteInfo) {
+      if (routeInfo.useRootNavigator) {
+        return popRoot(result);
+      }
+    }
+
     return pop(result);
   }
 
@@ -241,20 +249,37 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   }
 
   bool popRoot<T>([T? result]) {
-    throw UnimplementedError();
+    if (rootStack.length <= 1) {
+      return false;
+    }
+
+    final lastRootIndex = _stack.indexOf(rootStack.last);
+
+    _stack.removeAt(lastRootIndex).didPop(result);
+
+    notifyListeners();
+
+    return true;
   }
 
-  Future<T> pushNamed<T>() {
-    throw UnimplementedError();
+  Future<T> pushNamed<T>(String path, {Object? arguments, JsonMap? urlArgs}) {
+    final appRoute = appRouter.getRouteForPath(path)(arguments);
+
+    return push(appRoute, urlArguments: urlArgs);
   }
 
-  Future<T> replaceNamed<T>() {
-    throw UnimplementedError();
+  Future<T> replaceNamed<T>(
+    String path, {
+    Object? arguments,
+    JsonMap? urlArgs,
+  }) {
+    pop();
+    return pushNamed(path, arguments: arguments, urlArgs: urlArgs);
   }
 
   Future<T> push<T, A>(AppRoute route, {JsonMap? urlArguments}) {
     final info = routeInfos.singleWhereOrNull(
-      (routeInfo) => routeInfo.name == route.name,
+      (routeInfo) => routeInfo.path == route.name,
     );
 
     final useRoot = switch (info) {
@@ -294,13 +319,13 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     return page.popped;
   }
 
-  void replace(AppRoute route) {
-    _stack.removeLast();
-    push(route);
+  Future<T> replace<T>(AppRoute route) {
+    pop();
+    return push(route);
   }
 
-  void popUntil(bool Function(NomoPage) predicate) {
-    while (predicate(_stack.last)) {
+  void popUntil(bool Function(RouteInfo) predicate) {
+    while (predicate(_stack.last.routeInfo)) {
       pop();
     }
   }

@@ -31,10 +31,10 @@ class RouteSelector extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               NomoNavigator.of(context).push(
-                appRouter.getRouteForPath(r.name)(),
+                appRouter.getRouteForPath(r.path)(),
               );
             },
-            child: Text(r.name),
+            child: Text(r.path),
           ),
         ElevatedButton(
           onPressed: () {
@@ -43,6 +43,12 @@ class RouteSelector extends StatelessWidget {
             ));
           },
           child: Text("Test with Id"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            NomoNavigator.of(context).pushNamed("/amkrandom");
+          },
+          child: Text("Random"),
         ),
       ],
     );
