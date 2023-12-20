@@ -19,4 +19,8 @@ extension RouteInfoUtil on Iterable<RouteInfo> {
       ]
     ];
   }
+
+  Iterable<MenuRouteInfoMixin> get toMenuRoutes {
+    return whereType<MenuRouteInfoMixin>();
+  }
 }
