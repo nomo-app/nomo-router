@@ -1,3 +1,4 @@
+import 'package:example/pages/cool.dart';
 import 'package:example/pages/home.dart';
 import 'package:example/pages/settings.dart';
 import 'package:example/pages/test.dart';
@@ -27,6 +28,10 @@ const _routes = [
       PageRouteInfo(
         path: '/test',
         page: TestScreen,
+      ),
+      PageRouteInfo(
+        path: '/cool',
+        page: CoolScreen,
       ),
       ModalRouteInfo(
         path: "/nestedSettings",

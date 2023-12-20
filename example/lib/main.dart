@@ -14,16 +14,24 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = AppRouter();
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final delegate = NomoRouterDelegate(
-      rootNavigatorKey,
-      appRouter: appRouter,
-    );
+  State<MainApp> createState() => _MainAppState();
+}
 
+class _MainAppState extends State<MainApp> {
+  late final Uri initalUri =
+      WidgetsBinding.instance.platformDispatcher.defaultRouteName.uri;
+
+  late final delegate = NomoRouterDelegate(
+    rootNavigatorKey,
+    appRouter: appRouter,
+  );
+
+  @override
+  Widget build(BuildContext context) {
     return NomoNavigator(
       delegate: delegate,
       defaultTransistion: const PageSharedAxisTransition(
@@ -36,8 +44,7 @@ class MainApp extends StatelessWidget {
         backButtonDispatcher: RootBackButtonDispatcher(),
         routeInformationProvider: PlatformRouteInformationProvider(
           initialRouteInformation: RouteInformation(
-            uri:
-                WidgetsBinding.instance.platformDispatcher.defaultRouteName.uri,
+            uri: initalUri,
           ),
         ),
       ),
