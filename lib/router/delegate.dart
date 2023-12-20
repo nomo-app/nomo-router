@@ -38,6 +38,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   late final Iterable<RouteInfo> nestedRoutes;
 
   final Widget? initial;
+  late final RouteInfo? initialRouteInfo;
 
   final List<NavigatorObserver> observers;
   final List<NavigatorObserver> nestedObservers;
@@ -49,12 +50,15 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     this.observers = const [],
     this.nestedObservers = const [],
   }) {
+    initialRouteInfo = initial != null
+        ? PageRouteInfo(
+            path: "/",
+            page: initial!.runtimeType,
+          )
+        : null;
+
     routeInfos = [
-      if (initial != null)
-        PageRouteInfo(
-          path: "/",
-          page: initial!.runtimeType,
-        ),
+      if (initial != null) initialRouteInfo!,
       ...appRouter.routeInfos,
     ];
 
@@ -130,7 +134,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     if (_stack.isEmpty) {
       final home = routeInfos.singleWhereOrNull((route) => route.path == "/") ??
           routeInfos.first;
-      final homeRoute = appRouter.getRouteForPath(home.path)();
+      final homeRoute = initial != null
+          ? InitalAppRoute(initial!)
+          : appRouter.getRouteForPath(home.path)();
       final isNested = nestedRoutes.contains(home);
       if (isNested) {
         _stack.add(nestedRouterPage);
@@ -171,7 +177,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         continue;
       }
 
-      final route = appRouter.getRouteForPath(routeInfo.path)();
+      final isInital = routeInfo == initialRouteInfo;
+
+      final route = isInital
+          ? InitalAppRoute(initial!)
+          : appRouter.getRouteForPath(routeInfo.path)();
 
       final isNested = nestedRoutes.contains(routeInfo);
 
