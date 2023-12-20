@@ -8,6 +8,30 @@ import 'package:source_gen/source_gen.dart';
 
 typedef Route = Map<String, DartObject>;
 
+class ResolvedRoute {
+  final String path;
+  final String namePostfix;
+  final ParameterizedType pageType;
+  final List<ResolvedRoute> children;
+
+  ResolvedRoute prependPath(String path) {
+    if (path == "/") return this;
+    return ResolvedRoute(
+      path: path + this.path,
+      namePostfix: namePostfix,
+      pageType: pageType,
+      children: children,
+    );
+  }
+
+  const ResolvedRoute({
+    required this.path,
+    required this.namePostfix,
+    required this.pageType,
+    required this.children,
+  });
+}
+
 class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
   @override
   generateForAnnotatedElement(
@@ -24,13 +48,12 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
         ?.toListValue()
         ?.namedArgumentsList;
 
-    final expandedRoutes = expandRoutes(routesList ?? []);
+    final resolvedRoutes = resolveRoutes(routesList ?? []);
+
+    final expandedRoutes = expandRoutes(resolvedRoutes);
 
     final routes = expandedRoutes.map((listItem) {
-      final path = listItem["path"]?.toStringValue() ?? "";
-
-      final pageType = listItem["page"]?.toTypeValue() as ParameterizedType;
-      final namePostFix = listItem["routePostfix"]?.toStringValue() ?? "";
+      final pageType = listItem.pageType;
       final name = pageType.getDisplayString(withNullability: false);
       final classElement = pageType.element as ClassElement;
       final args = [
@@ -53,7 +76,7 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
           .mapIndexed((index, args) => (args.$1, args.$2, defaultValues[index]))
           .toList();
 
-      return (name, namePostFix, path, argsWithValues);
+      return (name, listItem.namePostfix, listItem.path, argsWithValues);
     });
 
     final buffer = StringBuffer();
@@ -178,15 +201,19 @@ extension on List<DartObject> {
   }
 }
 
-List<Route> expandChildren(Route route) {
-  final children = route["children"]?.toListValue()?.namedArgumentsList;
-
-  if (children == null) {
+List<ResolvedRoute> expandChildren(ResolvedRoute route) {
+  if (route.children.isEmpty) {
     return [route];
   }
 
-  final recursedChildren =
-      children.map(expandChildren).expand((e) => e).toList();
+  final recursedChildren = route.children
+      .map(
+        (r) {
+          return expandChildren(r.prependPath(route.path));
+        },
+      )
+      .expand((e) => e)
+      .toList();
 
   return [
     route,
@@ -194,8 +221,31 @@ List<Route> expandChildren(Route route) {
   ];
 }
 
-List<Route> expandRoutes(List<Route> routes) {
+List<ResolvedRoute> expandRoutes(List<ResolvedRoute> routes) {
   return [
     for (final route in routes) ...expandChildren(route),
   ];
+}
+
+List<ResolvedRoute> resolveRoutes(List<Route> routes) {
+  return routes.map((e) => resolveRoute(e)).toList();
+}
+
+ResolvedRoute resolveRoute(Route route) {
+  final path = route["path"]?.toStringValue() ?? "";
+  final namePostfix = route["routePostfix"]?.toStringValue() ?? "";
+  final pageType = route["page"]?.toTypeValue() as ParameterizedType;
+
+  final children = route["children"]
+      ?.toListValue()
+      ?.namedArgumentsList
+      .map((e) => resolveRoute(e))
+      .toList();
+
+  return ResolvedRoute(
+    path: path,
+    namePostfix: namePostfix,
+    pageType: pageType,
+    children: children ?? [],
+  );
 }
