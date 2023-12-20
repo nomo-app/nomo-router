@@ -5,7 +5,6 @@ import 'package:example/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
-import 'package:route_gen/annotations.dart';
 
 part 'routes.g.dart';
 
@@ -32,6 +31,11 @@ const _routes = [
       PageRouteInfo(
         path: '/cool',
         page: CoolScreen,
+      ),
+      PageRouteInfo(
+        path: '/cool2',
+        page: CoolScreen,
+        routePostfix: "2",
       ),
       ModalRouteInfo(
         path: "/nestedSettings",

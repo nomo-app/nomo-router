@@ -18,6 +18,7 @@ class AppRouter extends NomoAppRouter {
               );
             },
             CoolScreenRoute.path: ([a]) => CoolScreenRoute(),
+            CoolScreen2Route.path: ([a]) => CoolScreen2Route(),
             SettingsModalNestedRoute.path: ([a]) {
               final typedArgs = a as SettingsModalNestedArguments?;
               return SettingsModalNestedRoute(
@@ -80,6 +81,19 @@ class CoolScreenRoute extends AppRoute implements CoolScreenArguments {
           page: CoolScreen(),
         );
   static String path = '/cool';
+}
+
+class CoolScreen2Arguments {
+  const CoolScreen2Arguments();
+}
+
+class CoolScreen2Route extends AppRoute implements CoolScreen2Arguments {
+  CoolScreen2Route()
+      : super(
+          name: '/cool2',
+          page: CoolScreen(),
+        );
+  static String path = '/cool2';
 }
 
 class SettingsModalNestedArguments {
