@@ -61,7 +61,9 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
           (field.type.getDisplayString(withNullability: true), field.name)
       ];
       final constructor = classElement.constructors.first;
-      final defaultValues = constructor.parameters.map((constructorPar) {
+      final defaultValues = constructor.parameters
+          .where((param) => !param.isSuperFormal)
+          .map((constructorPar) {
         if (constructorPar.hasDefaultValue) {
           return constructorPar.defaultValueCode;
         }
