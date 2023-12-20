@@ -47,14 +47,9 @@ sealed class NomoPage<T> extends Page {
             builder: (
               context,
             ) {
-              return PopScope(
-                onPopInvoked: (didPop) {
-                  print("asdasd");
-                },
-                child: RouteInfoProvider(
-                  route: this,
-                  child: route.page,
-                ),
+              return RouteInfoProvider(
+                route: this,
+                child: route.page,
               );
             },
           ),
