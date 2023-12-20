@@ -3,7 +3,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/src/builder/build_step.dart';
 import 'package:collection/collection.dart';
-import 'package:route_gen/src/anotations.dart';
+import 'package:route_gen/anotations.dart';
 import 'package:source_gen/source_gen.dart';
 
 typedef Route = Map<String, DartObject>;

@@ -5,6 +5,7 @@ import 'package:example/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
+import 'package:route_gen/anotations.dart';
 
 part 'routes.g.dart';
 

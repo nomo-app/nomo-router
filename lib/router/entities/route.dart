@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:nomo_router/nomo_router.dart';
 
-export 'package:route_gen/src/anotations.dart';
-
 abstract class NomoAppRouter {
   final List<RouteInfo> routeInfos;
 
