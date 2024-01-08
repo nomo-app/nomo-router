@@ -334,6 +334,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     return push(route);
   }
 
+  Future<T> replaceAll<T>(AppRoute route) {
+    _stack.clear();
+    return push(route);
+  }
+
   void popUntil(bool Function(RouteInfo) predicate) {
     while (predicate(_stack.last.routeInfo)) {
       pop();

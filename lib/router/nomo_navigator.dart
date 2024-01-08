@@ -39,6 +39,8 @@ class NomoNavigator extends InheritedWidget {
 
   Future<T> replace<T>(AppRoute route) => delegate.replace(route);
 
+  Future<T> replaceAll<T>(AppRoute route) => delegate.replaceAll(route);
+
   Future<T> replaceNamed<T>(
     String routeName, {
     Object? arguments,
