@@ -28,6 +28,8 @@ class NestedRouterAppRoute implements AppRoute {
 class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterConfiguration> {
   final GlobalKey<NavigatorState> _navigatorKey;
+  final GlobalKey<NomoNavigatorState> _nomoNavigatorKey;
+
   final NomoAppRouter appRouter;
   late final List<RouteInfo> routeInfos;
 
@@ -44,7 +46,8 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   final List<NavigatorObserver> nestedObservers;
 
   NomoRouterDelegate(
-    this._navigatorKey, {
+    this._navigatorKey,
+    this._nomoNavigatorKey, {
     this.initial,
     required this.appRouter,
     this.observers = const [],
@@ -149,13 +152,17 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       }
     }
 
-    return NomoNavigatorInformationProvider(
-      current: current,
-      child: Navigator(
-        key: _navigatorKey,
-        onPopPage: _handlePopPage,
-        pages: rootStack,
-        observers: observers,
+    return NomoNavigatorWrapper(
+      delegate: this,
+      key: _nomoNavigatorKey,
+      child: NomoNavigatorInformationProvider(
+        current: current,
+        child: Navigator(
+          key: _navigatorKey,
+          onPopPage: _handlePopPage,
+          pages: rootStack,
+          observers: observers,
+        ),
       ),
     );
   }
@@ -370,4 +377,25 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       key: UniqueKey(),
     );
   }
+}
+
+class NomoNavigatorWrapper extends StatefulWidget {
+  final Widget child;
+  final NomoRouterDelegate delegate;
+
+  const NomoNavigatorWrapper({
+    super.key,
+    required this.child,
+    required this.delegate,
+  });
+
+  @override
+  State<NomoNavigatorWrapper> createState() => NomoNavigatorState();
+}
+
+class NomoNavigatorState extends State<NomoNavigatorWrapper> {
+  NomoRouterDelegate get delegate => widget.delegate;
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

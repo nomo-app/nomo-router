@@ -12,6 +12,8 @@ void main() {
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
+final nomoNavigatorKey = GlobalKey<NomoNavigatorState>();
+
 final appRouter = AppRouter();
 
 class MainApp extends StatefulWidget {
@@ -27,6 +29,7 @@ class _MainAppState extends State<MainApp> {
 
   late final delegate = NomoRouterDelegate(
     rootNavigatorKey,
+    nomoNavigatorKey,
     appRouter: appRouter,
   );
 
@@ -37,7 +40,7 @@ class _MainAppState extends State<MainApp> {
       defaultTransistion: const PageSharedAxisTransition(
         type: SharedAxisTransitionType.horizontal,
       ),
-      defaultModalTransistion: PageSlideTransition(),
+      defaultModalTransistion: const PageSlideTransition(),
       child: MaterialApp.router(
         routerDelegate: delegate,
         routeInformationParser: const NomoRouteInformationParser(),

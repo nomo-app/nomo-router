@@ -42,13 +42,19 @@ class RouteSelector extends StatelessWidget {
               id: TestEnum.two,
             ));
           },
-          child: Text("Test with Id"),
+          child: const Text("Test with Id"),
         ),
         ElevatedButton(
           onPressed: () {
             NomoNavigator.of(context).pushNamed("/amkrandom");
           },
-          child: Text("Random"),
+          child: const Text("Random"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            nomoNavigatorKey.currentState?.delegate.push(TestScreenRoute());
+          },
+          child: const Text("Without Context"),
         ),
       ],
     );

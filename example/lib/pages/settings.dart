@@ -6,7 +6,7 @@ import 'package:nomo_router/router/nomo_navigator.dart';
 class SettingsModal extends StatelessWidget {
   final String? id;
 
-  const SettingsModal({this.id});
+  const SettingsModal({super.key, this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -20,14 +20,14 @@ class SettingsModal extends StatelessWidget {
             Center(
               child: Text('Settings:  $id'),
             ),
-            RouteSelector(),
+            const RouteSelector(),
             ElevatedButton(
               onPressed: () {
                 NomoNavigator.of(context).push(
                   SettingsModalRoute(id: "amk"),
                 );
               },
-              child: Text(
+              child: const Text(
                 "Settings with id",
               ),
             ),

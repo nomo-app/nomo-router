@@ -12,6 +12,7 @@ class TestScreen extends StatelessWidget {
   final TestEnum id;
 
   const TestScreen({
+    super.key,
     this.id = TestEnum.one,
   });
 
@@ -22,7 +23,7 @@ class TestScreen extends StatelessWidget {
         Center(
           child: Text('Test SCreen: $id'),
         ),
-        RouteSelector(),
+        const RouteSelector(),
       ],
     );
   }
