@@ -55,30 +55,30 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     final routes = expandedRoutes.map((listItem) {
       final pageType = listItem.pageType;
       final name = pageType.getDisplayString(withNullability: false);
-      final classElement = pageType.element as ClassElement;
-      final args = [
-        for (final field in classElement.fields)
-          (field.type.getDisplayString(withNullability: true), field.name)
-      ];
-      final constructor = classElement.constructors.first;
-      final defaultValues = constructor.parameters
-          .where((param) => !param.isSuperFormal)
-          .map((constructorPar) {
-        if (constructorPar.hasDefaultValue) {
-          return constructorPar.defaultValueCode;
-        }
-        if (constructorPar.isRequired) {
-          throw Exception(
-            "No Required Parameters Allowed. Either make it optional or provide a default value",
-          );
-        }
-        return null;
-      }).toList();
-      final argsWithValues = args
-          .mapIndexed((index, args) => (args.$1, args.$2, defaultValues[index]))
+      final constructorParams = ((pageType.element as ClassElement)
+                  .constructors
+                  .firstOrNull
+                  ?.parameters ??
+              [])
+          .where(
+            (param) => !param.isSuperFormal,
+          )
           .toList();
 
-      return (name, listItem.namePostfix, listItem.path, argsWithValues);
+      final List<(String, String, String?)> args = [];
+      for (final param in constructorParams) {
+        if (param.isRequired) {
+          throw Exception(
+              "No Required Parameters Allowed. Either make it optional or provide a default value");
+        }
+        final type = param.type.getDisplayString(withNullability: true);
+        final name = param.name;
+        final defaultValue = param.defaultValueCode;
+
+        args.add((type, name, defaultValue));
+      }
+
+      return (name, listItem.namePostfix, listItem.path, args);
     });
 
     final buffer = StringBuffer();
