@@ -49,4 +49,9 @@ const _routes = [
     path: '/settings',
     page: SettingsModal,
   ),
+  PageRouteInfo(
+    path: '/rootTest',
+    page: TestScreen,
+    routePostfix: "Root",
+  ),
 ];

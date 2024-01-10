@@ -10,8 +10,6 @@ void main() {
   runApp(const MainApp());
 }
 
-final rootNavigatorKey = GlobalKey<NavigatorState>();
-
 final nomoNavigatorKey = GlobalKey<NomoNavigatorState>();
 
 final appRouter = AppRouter();
@@ -28,7 +26,6 @@ class _MainAppState extends State<MainApp> {
       WidgetsBinding.instance.platformDispatcher.defaultRouteName.uri;
 
   late final delegate = NomoRouterDelegate(
-    rootNavigatorKey,
     nomoNavigatorKey,
     appRouter: appRouter,
   );

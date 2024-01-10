@@ -10,15 +10,30 @@ class AppRouter extends NomoAppRouter {
   AppRouter()
       : super(
           {
-            HomeScreenRoute.path: ([a]) => HomeScreenRoute(),
+            HomeScreenRoute.path: ([a]) {
+              final typedArgs = a as HomeScreenArguments?;
+              return HomeScreenRoute(
+                key: typedArgs?.key,
+              );
+            },
             TestScreenRoute.path: ([a]) {
               final typedArgs = a as TestScreenArguments?;
               return TestScreenRoute(
                 id: typedArgs?.id ?? TestEnum.one,
               );
             },
-            CoolScreenRoute.path: ([a]) => CoolScreenRoute(),
-            CoolScreen2Route.path: ([a]) => CoolScreen2Route(),
+            CoolScreenRoute.path: ([a]) {
+              final typedArgs = a as CoolScreenArguments?;
+              return CoolScreenRoute(
+                key: typedArgs?.key,
+              );
+            },
+            CoolScreen2Route.path: ([a]) {
+              final typedArgs = a as CoolScreen2Arguments?;
+              return CoolScreen2Route(
+                key: typedArgs?.key,
+              );
+            },
             SettingsModalNestedRoute.path: ([a]) {
               final typedArgs = a as SettingsModalNestedArguments?;
               return SettingsModalNestedRoute(
@@ -31,20 +46,34 @@ class AppRouter extends NomoAppRouter {
                 id: typedArgs?.id,
               );
             },
+            TestScreenRootRoute.path: ([a]) {
+              final typedArgs = a as TestScreenRootArguments?;
+              return TestScreenRootRoute(
+                id: typedArgs?.id ?? TestEnum.one,
+              );
+            },
           },
           _routes.expanded.toList(),
         );
 }
 
 class HomeScreenArguments {
-  const HomeScreenArguments();
+  final Key? key;
+  const HomeScreenArguments({
+    this.key,
+  });
 }
 
 class HomeScreenRoute extends AppRoute implements HomeScreenArguments {
-  HomeScreenRoute()
-      : super(
+  @override
+  final Key? key;
+  HomeScreenRoute({
+    this.key,
+  }) : super(
           name: '/',
-          page: HomeScreen(),
+          page: HomeScreen(
+            key: key,
+          ),
         );
   static String path = '/';
 }
@@ -71,27 +100,43 @@ class TestScreenRoute extends AppRoute implements TestScreenArguments {
 }
 
 class CoolScreenArguments {
-  const CoolScreenArguments();
+  final Key? key;
+  const CoolScreenArguments({
+    this.key,
+  });
 }
 
 class CoolScreenRoute extends AppRoute implements CoolScreenArguments {
-  CoolScreenRoute()
-      : super(
+  @override
+  final Key? key;
+  CoolScreenRoute({
+    this.key,
+  }) : super(
           name: '/cool',
-          page: CoolScreen(),
+          page: CoolScreen(
+            key: key,
+          ),
         );
   static String path = '/cool';
 }
 
 class CoolScreen2Arguments {
-  const CoolScreen2Arguments();
+  final Key? key;
+  const CoolScreen2Arguments({
+    this.key,
+  });
 }
 
 class CoolScreen2Route extends AppRoute implements CoolScreen2Arguments {
-  CoolScreen2Route()
-      : super(
+  @override
+  final Key? key;
+  CoolScreen2Route({
+    this.key,
+  }) : super(
           name: '/cool2',
-          page: CoolScreen(),
+          page: CoolScreen(
+            key: key,
+          ),
         );
   static String path = '/cool2';
 }
@@ -137,4 +182,25 @@ class SettingsModalRoute extends AppRoute implements SettingsModalArguments {
           ),
         );
   static String path = '/settings';
+}
+
+class TestScreenRootArguments {
+  final TestEnum id;
+  const TestScreenRootArguments({
+    required this.id,
+  });
+}
+
+class TestScreenRootRoute extends AppRoute implements TestScreenRootArguments {
+  @override
+  final TestEnum id;
+  TestScreenRootRoute({
+    this.id = TestEnum.one,
+  }) : super(
+          name: '/rootTest',
+          page: TestScreen(
+            id: id,
+          ),
+        );
+  static String path = '/rootTest';
 }
