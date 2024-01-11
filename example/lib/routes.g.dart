@@ -53,7 +53,8 @@ class AppRouter extends NomoAppRouter {
               );
             },
           },
-          _routes.expanded.toList(),
+          _routes.expanded.where((r) => r is! NestedPageRouteInfo).toList(),
+          _routes.expanded.whereType<NestedPageRouteInfo>().toList(),
         );
 }
 
@@ -70,12 +71,12 @@ class HomeScreenRoute extends AppRoute implements HomeScreenArguments {
   HomeScreenRoute({
     this.key,
   }) : super(
-          name: '/',
+          name: '/home',
           page: HomeScreen(
             key: key,
           ),
         );
-  static String path = '/';
+  static String path = '/home';
 }
 
 class TestScreenArguments {
@@ -197,10 +198,10 @@ class TestScreenRootRoute extends AppRoute implements TestScreenRootArguments {
   TestScreenRootRoute({
     this.id = TestEnum.one,
   }) : super(
-          name: '/rootTest',
+          name: '/',
           page: TestScreen(
             id: id,
           ),
         );
-  static String path = '/rootTest';
+  static String path = '/';
 }

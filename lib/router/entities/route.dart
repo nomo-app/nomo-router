@@ -3,6 +3,7 @@ import 'package:nomo_router/nomo_router.dart';
 
 abstract class NomoAppRouter {
   final List<RouteInfo> routeInfos;
+  final List<NestedPageRouteInfo> nestedRoutes;
 
   final Map<String, AppRoute Function([dynamic args])> routes;
 
@@ -14,7 +15,7 @@ abstract class NomoAppRouter {
     return route;
   }
 
-  const NomoAppRouter(this.routes, this.routeInfos);
+  const NomoAppRouter(this.routes, this.routeInfos, this.nestedRoutes);
 }
 
 class AppRoute {

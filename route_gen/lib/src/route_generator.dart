@@ -11,7 +11,7 @@ typedef Route = Map<String, DartObject>;
 class ResolvedRoute {
   final String path;
   final String namePostfix;
-  final ParameterizedType pageType;
+  final ParameterizedType? pageType;
   final List<ResolvedRoute> children;
 
   ResolvedRoute prependPath(String path) {
@@ -54,6 +54,7 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
 
     final routes = expandedRoutes.map((listItem) {
       final pageType = listItem.pageType;
+      if (pageType == null) return null;
       final name = pageType.getDisplayString(withNullability: false);
       final constructorParams = ((pageType.element as ClassElement)
                   .constructors
@@ -79,7 +80,7 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
       }
 
       return (name, listItem.namePostfix, listItem.path, args);
-    });
+    }).whereType<(String, String, String, List<(String, String, String?)>)>();
 
     final buffer = StringBuffer();
 
@@ -110,7 +111,10 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
       }
     }
     buffer.writeln("},");
-    buffer.writeln("${name}.expanded.toList(),");
+    buffer.writeln(
+        "${name}.expanded.where((r) => r is! NestedPageRouteInfo).toList(),");
+    buffer
+        .writeln("${name}.expanded.whereType<NestedPageRouteInfo>().toList(),");
     buffer.writeln(");");
 
     buffer.writeln("}");
@@ -234,9 +238,9 @@ List<ResolvedRoute> resolveRoutes(List<Route> routes) {
 }
 
 ResolvedRoute resolveRoute(Route route) {
-  final path = route["path"]?.toStringValue() ?? "";
+  final path = route["path"]?.toStringValue() ?? "/";
   final namePostfix = route["routePostfix"]?.toStringValue() ?? "";
-  final pageType = route["page"]?.toTypeValue() as ParameterizedType;
+  final pageType = route["page"]?.toTypeValue() as ParameterizedType?;
 
   final children = route["children"]
       ?.toListValue()

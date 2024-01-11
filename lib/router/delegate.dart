@@ -45,12 +45,10 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       ...appRouter.routeInfos,
     ];
 
-    final nestedPageRoute =
-        routeInfos.whereType<NestedPageRouteInfo>().firstOrNull;
+    final nestedPageRoute = appRouter.nestedRoutes.firstOrNull;
 
     nestedRoutes = [
       if (nestedPageRoute != null) ...[
-        nestedPageRoute,
         ...nestedPageRoute.underlying,
       ]
     ];
@@ -74,8 +72,8 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       },
     );
 
-    nestedRouterPageInfo = const PageRouteInfo(
-      path: "/",
+    nestedRouterPageInfo = PageRouteInfo(
+      path: nestedPageRoute?.path ?? '/',
       page: Object, // Can be anything since we dont generate this route
     );
 

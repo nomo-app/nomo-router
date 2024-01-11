@@ -94,23 +94,18 @@ final class NestedPageRouteInfo extends PageRouteInfo {
   final Widget Function(Widget nav) wrapper;
 
   const NestedPageRouteInfo({
-    required super.path,
-    required super.page,
+    String? pathPrefix,
     required this.wrapper,
-    super.children,
-    super.transition,
-    super.routePostfix,
-  });
+    required super.children,
+  }) : super(
+          path: pathPrefix ?? "/",
+          page: String,
+          transition: null,
+        );
 
   @override
   RouteInfo combine(RouteInfo other) {
-    if (other.isRoot) return this;
-    return NestedPageRouteInfo(
-      path: "${other.path}$path",
-      page: page,
-      wrapper: wrapper,
-      children: children,
-    );
+    return this;
   }
 }
 
@@ -146,37 +141,6 @@ final class MenuPageRouteInfo extends PageRouteInfo with MenuRouteInfoMixin {
       title: title,
       icon: icon,
       image: image,
-      children: children,
-    );
-  }
-}
-
-final class MenuNestedPageRouteInfo extends MenuPageRouteInfo
-    implements NestedPageRouteInfo {
-  @override
-  final Widget Function(Widget nav) wrapper;
-  const MenuNestedPageRouteInfo({
-    required this.wrapper,
-    required super.path,
-    required super.page,
-    required super.title,
-    super.children,
-    super.icon,
-    super.image,
-    super.transition,
-    super.routePostfix,
-  });
-
-  @override
-  RouteInfo combine(RouteInfo other) {
-    if (other.isRoot) return this;
-    return MenuNestedPageRouteInfo(
-      path: "${other.path}$path",
-      page: page,
-      title: title,
-      icon: icon,
-      image: image,
-      wrapper: wrapper,
       children: children,
     );
   }

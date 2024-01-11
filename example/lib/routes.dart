@@ -21,10 +21,13 @@ Widget wrap(Widget nav) {
 @AppRoutes()
 const _routes = [
   NestedPageRouteInfo(
-    path: "/",
-    page: HomeScreen,
+    pathPrefix: "/",
     wrapper: wrap,
     children: [
+      PageRouteInfo(
+        path: '/home',
+        page: HomeScreen,
+      ),
       PageRouteInfo(
         path: '/test',
         page: TestScreen,
@@ -50,7 +53,7 @@ const _routes = [
     page: SettingsModal,
   ),
   PageRouteInfo(
-    path: '/rootTest',
+    path: '/',
     page: TestScreen,
     routePostfix: "Root",
   ),
