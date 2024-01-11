@@ -53,7 +53,9 @@ class RouteSelector extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            nomoNavigatorKey.currentState?.push(TestScreenRootRoute());
+            NomoNavigator.fromKey.push(TestScreenRoute(
+              id: TestEnum.two,
+            ));
           },
           child: const Text("Without Context"),
         ),

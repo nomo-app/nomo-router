@@ -61,6 +61,20 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
     return result!;
   }
 
+  static NomoNavigator? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<NomoNavigator>();
+  }
+
+  static NomoNavigatorState get fromKey {
+    final state = nomoNavigatorKey.currentState;
+    assert(state != null, 'No NomoNavigatorState found in context');
+    return state!;
+  }
+
+  static NomoNavigatorState? get maybeFromKey {
+    return nomoNavigatorKey.currentState;
+  }
+
   @override
   bool updateShouldNotify(covariant NomoNavigator oldWidget) {
     return oldWidget.delegate != delegate;

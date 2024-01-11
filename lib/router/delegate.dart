@@ -6,9 +6,10 @@ import 'package:collection/collection.dart';
 import 'package:nomo_router/router/entities/route.dart';
 import 'package:nomo_router/router/entities/transitions.dart';
 
+final nomoNavigatorKey = GlobalKey<NomoNavigatorState>();
+
 class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterConfiguration> {
-  final GlobalKey<NomoNavigatorState> _nomoNavigatorKey;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   final NomoAppRouter appRouter;
@@ -26,8 +27,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   final List<NavigatorObserver> observers;
   final List<NavigatorObserver> nestedObservers;
 
-  NomoRouterDelegate(
-    this._nomoNavigatorKey, {
+  NomoRouterDelegate({
     this.initial,
     required this.appRouter,
     this.observers = const [],
@@ -132,7 +132,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
     return NomoNavigatorWrapper(
       delegate: this,
-      key: _nomoNavigatorKey,
+      key: nomoNavigatorKey,
       child: NomoNavigatorInformationProvider(
         current: current,
         child: Navigator(
