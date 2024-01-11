@@ -4,26 +4,7 @@ import 'package:nomo_router/nomo_router.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:nomo_router/router/entities/route.dart';
-
-class InitalAppRoute implements AppRoute {
-  @override
-  final String name = "/";
-
-  @override
-  final Widget page;
-
-  const InitalAppRoute(this.page);
-}
-
-class NestedRouterAppRoute implements AppRoute {
-  @override
-  final String name = "/";
-
-  @override
-  final Widget page;
-
-  const NestedRouterAppRoute(this.page);
-}
+import 'package:nomo_router/router/entities/transitions.dart';
 
 class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterConfiguration> {
@@ -36,7 +17,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   final nestedStackNotifier = ValueNotifier<List<NestedNomoPage>>([]);
 
   late final PageRouteInfo nestedRouterPageInfo;
-  late final AppRoute nestedRouterRoute;
+  late final Widget nestedRouterRoute;
   late final Iterable<RouteInfo> nestedRoutes;
 
   final Widget? initial;
@@ -98,13 +79,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       page: Object, // Can be anything since we dont generate this route
     );
 
-    nestedRouterRoute = NestedRouterAppRoute(
-      nestedPageRoute?.wrapper(nestedNav) ?? nestedNav,
-    );
+    nestedRouterRoute = nestedPageRoute?.wrapper(nestedNav) ?? nestedNav;
   }
 
   NomoPage get nestedRouterPage => RootNomoPage(
-        route: nestedRouterRoute,
+        page: nestedRouterRoute,
         routeInfo: nestedRouterPageInfo,
         key: ValueKey(_stack),
       );
@@ -136,17 +115,17 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     if (_stack.isEmpty) {
       final home = routeInfos.singleWhereOrNull((route) => route.path == "/") ??
           routeInfos.first;
-      final homeRoute = initial != null
-          ? InitalAppRoute(initial!)
-          : appRouter.getRouteForPath(home.path)();
+      final homePage = initial != null
+          ? initial!
+          : appRouter.getRouteForPath(home.path)().page;
       final isNested = nestedRoutes.contains(home);
       if (isNested) {
         _stack.add(nestedRouterPage);
-        _stack.add(_nestedPageFromRouteInfo(home, homeRoute));
+        _stack.add(_nestedPageFromRouteInfo(home, homePage));
         nestedStackNotifier.value = nestedStack;
       } else {
         _stack.add(
-          _pageFromRouteInfo(home, homeRoute),
+          _pageFromRouteInfo(home, homePage),
         );
       }
     }
@@ -185,15 +164,15 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
       final isInital = routeInfo == initialRouteInfo;
 
-      final route = isInital
-          ? InitalAppRoute(initial!)
-          : appRouter.getRouteForPath(routeInfo.path)();
+      final page = isInital
+          ? initial!
+          : appRouter.getRouteForPath(routeInfo.path)().page;
 
       final isNested = nestedRoutes.contains(routeInfo);
 
       if (isNested && !containtsNestedRouterPage(newStack)) {
         newStack.add(nestedRouterPage);
-        newStack.add(_nestedPageFromRouteInfo(routeInfo, route));
+        newStack.add(_nestedPageFromRouteInfo(routeInfo, page));
         continue;
       }
 
@@ -201,12 +180,12 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         switch (isNested) {
           true => _nestedPageFromRouteInfo(
               routeInfo,
-              route,
+              page,
               urlArguments: routeSettings.arguments as JsonMap?,
             ),
           false => _pageFromRouteInfo(
               routeInfo,
-              route,
+              page,
               urlArguments: routeSettings.arguments as JsonMap?,
             ),
         },
@@ -308,16 +287,16 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     final page = switch ((info, isNested)) {
       (null, _) => _pageFromRouteInfo<T>(
           notFoundRouteInfo,
-          const NotFoundRoute(),
+          const NotFound(),
         ),
       (RouteInfo info, true) => _nestedPageFromRouteInfo<T>(
           info,
-          route,
+          route.page,
           urlArguments: urlArguments,
         ),
       (RouteInfo info, false) => _pageFromRouteInfo<T>(
           info,
-          route,
+          route.page,
           urlArguments: urlArguments,
         ),
     };
@@ -351,14 +330,43 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     }
   }
 
+  Future<T> pushModal<T>({
+    required Widget modal,
+    bool useRootNavigator = true,
+    PageTransition transition = const PageSlideTransition(),
+  }) {
+    final info = ModalRouteInfo(
+      path: "",
+      page: modal.runtimeType,
+      useRootNavigator: useRootNavigator,
+      transition: transition,
+    );
+
+    final page = useRootNavigator
+        ? _pageFromRouteInfo<T>(info, modal)
+        : _nestedPageFromRouteInfo<T>(info, modal);
+
+    if (useRootNavigator && !containsNestedRouterPage) {
+      _stack.add(nestedRouterPage);
+    }
+
+    _stack.add(page);
+
+    nestedStackNotifier.value = nestedStack;
+
+    notifyListeners();
+
+    return page.popped;
+  }
+
   NomoPage<T> _pageFromRouteInfo<T>(
     RouteInfo routeInfo,
-    AppRoute route, {
+    Widget page, {
     JsonMap? urlArguments,
   }) {
     return RootNomoPage(
       routeInfo: routeInfo,
-      route: route,
+      page: page,
       urlArguments: urlArguments,
       key: UniqueKey(),
     );
@@ -366,12 +374,12 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   NestedNomoPage<T> _nestedPageFromRouteInfo<T>(
     RouteInfo routeInfo,
-    AppRoute route, {
+    Widget page, {
     JsonMap? urlArguments,
   }) {
     return NestedNomoPage(
       routeInfo: routeInfo,
-      route: route,
+      page: page,
       urlArguments: urlArguments,
       key: UniqueKey(),
     );

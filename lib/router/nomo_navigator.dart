@@ -28,6 +28,12 @@ abstract class NomoNavigatorFunctions {
 
   bool popRoot<T>([T? result]);
 
+  Future<T> pushModal<T>({
+    required Widget modal,
+    PageTransition transition = const PageFadeTransition(),
+    bool useRootNavigator = true,
+  });
+
   RouteInfo get current;
 }
 
@@ -35,6 +41,8 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
   final NomoRouterDelegate delegate;
   final PageTransition defaultTransistion;
   final PageTransition defaultModalTransistion;
+  final Duration defaultTransitionDuration;
+  final Duration defaultModalTransitionDuration;
 
   const NomoNavigator({
     super.key,
@@ -42,6 +50,8 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
     required this.delegate,
     this.defaultModalTransistion = const PageFadeTransition(),
     this.defaultTransistion = const PageFadeThroughTransition(),
+    this.defaultTransitionDuration = const Duration(milliseconds: 240),
+    this.defaultModalTransitionDuration = const Duration(milliseconds: 200),
   });
 
   static NomoNavigator of(BuildContext context) {
@@ -93,6 +103,19 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
 
   @override
   RouteInfo get current => delegate.current;
+
+  @override
+  Future<T> pushModal<T>({
+    required Widget modal,
+    PageTransition transition = const PageFadeTransition(),
+    bool useRootNavigator = true,
+  }) {
+    return delegate.pushModal(
+      modal: modal,
+      useRootNavigator: useRootNavigator,
+      transition: transition,
+    );
+  }
 }
 
 class NomoNavigatorWrapper extends StatefulWidget {
@@ -153,4 +176,17 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
 
   @override
   Widget build(BuildContext context) => widget.child;
+
+  @override
+  Future<T> pushModal<T>({
+    required Widget modal,
+    PageTransition transition = const PageFadeTransition(),
+    bool useRootNavigator = true,
+  }) {
+    return _delegate.pushModal(
+      modal: modal,
+      useRootNavigator: useRootNavigator,
+      transition: transition,
+    );
+  }
 }

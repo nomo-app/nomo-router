@@ -2,11 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
-import 'package:nomo_router/router/entities/route.dart';
 
 sealed class NomoPage<T> extends Page {
   final RouteInfo routeInfo;
-  final AppRoute route;
+  final Widget page;
 
   final Completer<T> _popCompleter = Completer<T>();
 
@@ -20,68 +19,66 @@ sealed class NomoPage<T> extends Page {
 
   NomoPage({
     required this.routeInfo,
-    required this.route,
+    required this.page,
     this.urlArguments,
     super.arguments,
     super.key,
   }) : super(name: routeInfo.path);
 
   @override
-  Route<T> createRoute(BuildContext context) => switch (routeInfo) {
-        ModalRouteInfo _ => NomoModalRoute(
-            context: context,
-            settings: this,
-            barrierColor: Colors.black12,
-            barrierDismissible: true,
-            transitionDuration: const Duration(milliseconds: 240),
-            transitionBuilder: (context, animation, secondaryAnimation, child) {
-              final transition = routeInfo.transition ??
-                  NomoNavigator.of(context).defaultModalTransistion;
-              return transition.getTransition(
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              );
-            },
-            builder: (
-              context,
-            ) {
-              return RouteInfoProvider(
+  Route<T> createRoute(BuildContext context) {
+    final transition =
+        routeInfo.transition ?? NomoNavigator.of(context).defaultTransistion;
+
+    return switch (routeInfo) {
+      ModalRouteInfo _ => NomoModalRoute(
+          context: context,
+          settings: this,
+          barrierColor: Colors.black12,
+          barrierDismissible: true,
+          transitionDuration:
+              NomoNavigator.of(context).defaultModalTransitionDuration,
+          transitionBuilder: (context, anim, secAnim, child) {
+            return transition.getTransition(context, anim, secAnim, child);
+          },
+          builder: (context) {
+            return SafeArea(
+              child: RouteInfoProvider(
                 route: this,
-                child: route.page,
-              );
-            },
-          ),
-        PageRouteInfo routeInfo => PageRouteBuilder(
-            settings: this,
-            transitionDuration: const Duration(milliseconds: 240),
-            maintainState: true,
-            opaque: true,
-            transitionsBuilder: (
+                child: page,
+              ),
+            );
+          },
+        ),
+      PageRouteInfo _ => PageRouteBuilder(
+          settings: this,
+          transitionDuration:
+              NomoNavigator.of(context).defaultTransitionDuration,
+          maintainState: true,
+          opaque: true,
+          transitionsBuilder: (
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+          ) {
+            return transition.getTransition(
               context,
               animation,
               secondaryAnimation,
               child,
-            ) {
-              final transition = routeInfo.transition ??
-                  NomoNavigator.of(context).defaultTransistion;
-              return transition.getTransition(
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              );
-            },
-            pageBuilder: (context, _, __) {
-              return RouteInfoProvider(
-                route: this,
-                child: route.page,
-              );
-            },
-          ),
-        MenuRouteInfoMixin _ => throw Exception("Should never be reached")
-      };
+            );
+          },
+          pageBuilder: (context, _, __) {
+            return RouteInfoProvider(
+              route: this,
+              child: page,
+            );
+          },
+        ),
+      MenuRouteInfoMixin _ => throw Exception("Should never be reached")
+    };
+  }
 
   @override
   String toString() {
@@ -92,7 +89,7 @@ sealed class NomoPage<T> extends Page {
 final class RootNomoPage<T> extends NomoPage<T> {
   RootNomoPage({
     required super.routeInfo,
-    required super.route,
+    required super.page,
     super.arguments,
     super.key,
     super.urlArguments,
@@ -112,7 +109,7 @@ final class NestedNomoPage<T> extends NomoPage<T> {
 
   NestedNomoPage({
     required super.routeInfo,
-    required super.route,
+    required super.page,
     super.arguments,
     super.key,
     super.urlArguments,

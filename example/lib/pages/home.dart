@@ -2,6 +2,7 @@ import 'package:example/main.dart';
 import 'package:example/pages/test.dart';
 import 'package:example/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:nomo_router/router/entities/transitions.dart';
 import 'package:nomo_router/router/nomo_navigator.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -62,7 +63,35 @@ class RouteSelector extends StatelessWidget {
           },
           child: const Text("Pop"),
         ),
+        ElevatedButton(
+          onPressed: () {
+            NomoNavigator.of(context).pushModal(
+              transition: const PageFadeScaleTransition(),
+              modal: const Center(
+                child: Modal(),
+              ),
+            );
+          },
+          child: const Text("Show Dialog"),
+        ),
       ],
+    );
+  }
+}
+
+class Modal extends StatelessWidget {
+  const Modal({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      height: 200,
+      color: Colors.red,
+      child: TextButton(
+        onPressed: () => NomoNavigator.of(context).pop(),
+        child: const Text("Close"),
+      ),
     );
   }
 }
