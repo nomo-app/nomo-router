@@ -11,6 +11,8 @@ final nomoNavigatorKey = GlobalKey<NomoNavigatorState>();
 class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterConfiguration> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _nestedNavigatorKey =
+      GlobalKey<NavigatorState>();
 
   final NomoAppRouter appRouter;
   late final List<RouteInfo> routeInfos;
@@ -62,6 +64,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         return Navigator(
           pages: pages,
           observers: nestedObservers,
+          key: _nestedNavigatorKey,
           onPopPage: (route, result) {
             if (!route.didPop(result)) {
               return false;
@@ -138,6 +141,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
           onPopPage: _handlePopPage,
           pages: rootStack,
           observers: observers,
+          onGenerateRoute: (settings) {
+            print(settings);
+          },
         ),
       ),
     );
@@ -207,10 +213,6 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       (element) => element.path == route.settings.name,
     );
 
-    if (routeInfo == null) {
-      return false;
-    }
-
     if (routeInfo is ModalRouteInfo) {
       if (routeInfo.useRootNavigator) {
         return popRoot(result);
@@ -218,6 +220,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     }
 
     return pop(result);
+  }
+
+  bool popWithKey<T>([T? result]) {
+    _navigatorKey.currentState?.pop(result);
+    return true;
   }
 
   bool pop<T>([T? result]) {
@@ -323,12 +330,18 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   }
 
   void popUntil(bool Function(RouteInfo) predicate) {
-    while (predicate(_stack.last.routeInfo)) {
+    while (!predicate(_stack.last.routeInfo)) {
       pop();
     }
   }
 
-  Future<T> pushModal<T>({
+  Future<T> popUntilAndPush<T>(
+      AppRoute route, bool Function(RouteInfo) predicate) {
+    popUntil(predicate);
+    return push(route);
+  }
+
+  Future<T?> pushModal<T>({
     required Widget modal,
     bool useRootNavigator = true,
     PageTransition transition = const PageSlideTransition(),
@@ -355,6 +368,65 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     notifyListeners();
 
     return page.popped;
+  }
+
+  Future<T?> showModalWithKey<T>({
+    required WidgetBuilder builder,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
+  }) {
+    final navKey = useRootNavigator ? _navigatorKey : _nestedNavigatorKey;
+
+    if (navKey.currentContext == null || navKey.currentState == null) {
+      return Future.value(null);
+    }
+
+    return navKey.currentState!.push<T>(
+      DialogRoute(
+        context: navKey.currentContext!,
+        builder: builder,
+        barrierColor: barrierColor,
+        barrierDismissible: barrierDismissible,
+        barrierLabel: barrierLabel,
+        useSafeArea: useSafeArea,
+        settings: routeSettings,
+        anchorPoint: anchorPoint,
+        traversalEdgeBehavior:
+            traversalEdgeBehavior ?? TraversalEdgeBehavior.closedLoop,
+      ),
+    );
+  }
+
+  Future<T?> showModal<T>({
+    required WidgetBuilder builder,
+    required BuildContext context,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
+  }) {
+    return showDialog<T>(
+      context: context,
+      builder: builder,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      barrierLabel: barrierLabel,
+      useSafeArea: useSafeArea,
+      useRootNavigator: useRootNavigator,
+      routeSettings: routeSettings,
+      anchorPoint: anchorPoint,
+      traversalEdgeBehavior: traversalEdgeBehavior,
+    );
   }
 
   NomoPage<T> _pageFromRouteInfo<T>(

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
 import 'package:nomo_router/router/entities/transitions.dart';
@@ -24,21 +24,49 @@ abstract class NomoNavigatorFunctions {
 
   void popUntil(bool Function(RouteInfo) predicate);
 
+  Future<T> popUntilAndPush<T>(
+      AppRoute route, bool Function(RouteInfo) predicate);
+
   bool pop<T>([T? result]);
 
   bool popRoot<T>([T? result]);
 
-  Future<T> pushModal<T>({
+  Future<T?> pushModal<T>({
     required Widget modal,
     PageTransition transition = const PageFadeTransition(),
     bool useRootNavigator = true,
+  });
+
+  Future<T?> showModalWithKey<T>({
+    required WidgetBuilder builder,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
+  });
+
+  Future<T?> showModal<T>({
+    required WidgetBuilder builder,
+    required BuildContext context,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
   });
 
   RouteInfo get current;
 }
 
 class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
-  final NomoRouterDelegate delegate;
+  final NomoRouterDelegate _delegate;
   final PageTransition defaultTransistion;
   final PageTransition defaultModalTransistion;
   final Duration defaultTransitionDuration;
@@ -47,12 +75,12 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
   const NomoNavigator({
     super.key,
     required super.child,
-    required this.delegate,
+    required NomoRouterDelegate delegate,
     this.defaultModalTransistion = const PageFadeTransition(),
     this.defaultTransistion = const PageFadeThroughTransition(),
     this.defaultTransitionDuration = const Duration(milliseconds: 240),
     this.defaultModalTransitionDuration = const Duration(milliseconds: 200),
-  });
+  }) : _delegate = delegate;
 
   static NomoNavigator of(BuildContext context) {
     final NomoNavigator? result =
@@ -77,11 +105,11 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
 
   @override
   bool updateShouldNotify(covariant NomoNavigator oldWidget) {
-    return oldWidget.delegate != delegate;
+    return oldWidget._delegate != _delegate;
   }
 
   @override
-  Future<T> push<T>(AppRoute route) => delegate.push(route);
+  Future<T> push<T>(AppRoute route) => _delegate.push(route);
 
   @override
   Future<T> pushNamed<T>(
@@ -89,13 +117,13 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
     Object? arguments,
     JsonMap? urlArguments,
   }) =>
-      delegate.pushNamed(routeName, urlArgs: urlArguments);
+      _delegate.pushNamed(routeName, urlArgs: urlArguments);
 
   @override
-  Future<T> replace<T>(AppRoute route) => delegate.replace(route);
+  Future<T> replace<T>(AppRoute route) => _delegate.replace(route);
 
   @override
-  Future<T> replaceAll<T>(AppRoute route) => delegate.replaceAll(route);
+  Future<T> replaceAll<T>(AppRoute route) => _delegate.replaceAll(route);
 
   @override
   Future<T> replaceNamed<T>(
@@ -103,32 +131,90 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
     Object? arguments,
     JsonMap? urlArguments,
   }) =>
-      delegate.replaceNamed(routeName, urlArgs: urlArguments);
+      _delegate.replaceNamed(routeName, urlArgs: urlArguments);
 
   @override
   void popUntil(bool Function(RouteInfo) predicate) =>
-      delegate.popUntil(predicate);
+      _delegate.popUntil(predicate);
 
   @override
-  bool pop<T>([T? result]) => delegate.pop(result);
+  bool pop<T>([T? result]) => _delegate.popWithKey(result);
 
   @override
-  bool popRoot<T>([T? result]) => delegate.popRoot(result);
+  bool popRoot<T>([T? result]) => _delegate.popRoot(result);
 
   @override
-  RouteInfo get current => delegate.current;
+  RouteInfo get current => _delegate.current;
 
   @override
-  Future<T> pushModal<T>({
+  Future<T?> pushModal<T>({
     required Widget modal,
     PageTransition transition = const PageFadeTransition(),
     bool useRootNavigator = true,
   }) {
-    return delegate.pushModal(
+    return _delegate.pushModal(
       modal: modal,
       useRootNavigator: useRootNavigator,
       transition: transition,
     );
+  }
+
+  @override
+  Future<T?> showModal<T>({
+    required WidgetBuilder builder,
+    required BuildContext context,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
+  }) {
+    return _delegate.showModal(
+      builder: builder,
+      context: context,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      barrierLabel: barrierLabel,
+      useSafeArea: useSafeArea,
+      useRootNavigator: useRootNavigator,
+      routeSettings: routeSettings,
+      anchorPoint: anchorPoint,
+      traversalEdgeBehavior: traversalEdgeBehavior,
+    );
+  }
+
+  @override
+  Future<T?> showModalWithKey<T>({
+    required WidgetBuilder builder,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
+  }) {
+    return _delegate.showModalWithKey(
+      builder: builder,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      barrierLabel: barrierLabel,
+      useSafeArea: useSafeArea,
+      useRootNavigator: useRootNavigator,
+      routeSettings: routeSettings,
+      anchorPoint: anchorPoint,
+      traversalEdgeBehavior: traversalEdgeBehavior,
+    );
+  }
+
+  @override
+  Future<T> popUntilAndPush<T>(
+      AppRoute route, bool Function(RouteInfo route) predicate) {
+    return _delegate.popUntilAndPush(route, predicate);
   }
 }
 
@@ -192,7 +278,7 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
   Widget build(BuildContext context) => widget.child;
 
   @override
-  Future<T> pushModal<T>({
+  Future<T?> pushModal<T>({
     required Widget modal,
     PageTransition transition = const PageFadeTransition(),
     bool useRootNavigator = true,
@@ -201,6 +287,64 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
       modal: modal,
       useRootNavigator: useRootNavigator,
       transition: transition,
+    );
+  }
+
+  @override
+  Future<T> popUntilAndPush<T>(
+      AppRoute route, bool Function(RouteInfo route) predicate) {
+    return _delegate.popUntilAndPush(route, predicate);
+  }
+
+  @override
+  Future<T?> showModal<T>({
+    required WidgetBuilder builder,
+    required BuildContext context,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
+  }) {
+    return _delegate.showModal(
+      builder: builder,
+      context: context,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      barrierLabel: barrierLabel,
+      useSafeArea: useSafeArea,
+      useRootNavigator: useRootNavigator,
+      routeSettings: routeSettings,
+      anchorPoint: anchorPoint,
+      traversalEdgeBehavior: traversalEdgeBehavior,
+    );
+  }
+
+  @override
+  Future<T?> showModalWithKey<T>({
+    required WidgetBuilder builder,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    Offset? anchorPoint,
+    TraversalEdgeBehavior? traversalEdgeBehavior,
+  }) {
+    return _delegate.showModalWithKey(
+      builder: builder,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      barrierLabel: barrierLabel,
+      useSafeArea: useSafeArea,
+      useRootNavigator: useRootNavigator,
+      routeSettings: routeSettings,
+      anchorPoint: anchorPoint,
+      traversalEdgeBehavior: traversalEdgeBehavior,
     );
   }
 }
