@@ -320,7 +320,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   }
 
   Future<T> replace<T>(AppRoute route) {
-    pop();
+    _stack.removeLast();
     return push(route);
   }
 
