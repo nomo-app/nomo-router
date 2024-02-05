@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nomo_router/router/extensions.dart';
+import 'package:nomo_router/nomo_router.dart';
 
 typedef RouterConfiguration = List<RouteSettings>;
+
+typedef RouterConfigurationNomo = List<NomoPage>;
 
 typedef JsonMap = Map<String, dynamic>;
 

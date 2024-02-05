@@ -63,6 +63,8 @@ abstract class NomoNavigatorFunctions {
   });
 
   RouteInfo get current;
+
+  RouterConfigurationNomo get configuration;
 }
 
 class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
@@ -216,6 +218,10 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
       AppRoute route, bool Function(RouteInfo route) predicate) {
     return _delegate.popUntilAndPush(route, predicate);
   }
+
+  @override
+  RouterConfigurationNomo get configuration =>
+      _delegate.currentConfiguration.whereType<NomoPage>().toList();
 }
 
 class NomoNavigatorWrapper extends StatefulWidget {
@@ -347,4 +353,8 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
       traversalEdgeBehavior: traversalEdgeBehavior,
     );
   }
+
+  @override
+  RouterConfigurationNomo get configuration =>
+      _delegate.currentConfiguration.whereType<NomoPage>().toList();
 }

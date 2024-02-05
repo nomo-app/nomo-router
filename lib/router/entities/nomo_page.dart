@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
+import 'package:nomo_router/router/entities/route.dart';
 
 sealed class NomoPage<T> extends Page {
   final RouteInfo routeInfo;
+  final AppRoute? route;
   final Widget page;
 
   final Completer<T> _popCompleter = Completer<T>();
@@ -20,6 +22,7 @@ sealed class NomoPage<T> extends Page {
   NomoPage({
     required this.routeInfo,
     required this.page,
+    required this.route,
     this.urlArguments,
     super.arguments,
     super.key,
@@ -90,6 +93,7 @@ final class RootNomoPage<T> extends NomoPage<T> {
   RootNomoPage({
     required super.routeInfo,
     required super.page,
+    required super.route,
     super.arguments,
     super.key,
     super.urlArguments,
@@ -110,6 +114,7 @@ final class NestedNomoPage<T> extends NomoPage<T> {
   NestedNomoPage({
     required super.routeInfo,
     required super.page,
+    required super.route,
     super.arguments,
     super.key,
     super.urlArguments,

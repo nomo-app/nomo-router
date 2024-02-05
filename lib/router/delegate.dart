@@ -86,6 +86,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   NomoPage get nestedRouterPage => RootNomoPage(
         page: nestedRouterRoute,
         routeInfo: nestedRouterPageInfo,
+        route: null,
         key: ValueKey(_stack),
       );
 
@@ -141,9 +142,6 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
           onPopPage: _handlePopPage,
           pages: rootStack,
           observers: observers,
-          onGenerateRoute: (settings) {
-            print(settings);
-          },
         ),
       ),
     );
@@ -297,11 +295,13 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       (RouteInfo info, true) => _nestedPageFromRouteInfo<T>(
           info,
           route.page,
+          route: route,
           urlArguments: urlArguments,
         ),
       (RouteInfo info, false) => _pageFromRouteInfo<T>(
           info,
           route.page,
+          route: route,
           urlArguments: urlArguments,
         ),
     };
@@ -432,12 +432,14 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   NomoPage<T> _pageFromRouteInfo<T>(
     RouteInfo routeInfo,
     Widget page, {
+    AppRoute? route,
     JsonMap? urlArguments,
   }) {
     return RootNomoPage(
       routeInfo: routeInfo,
       page: page,
       urlArguments: urlArguments,
+      route: route,
       key: UniqueKey(),
     );
   }
@@ -445,12 +447,14 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   NestedNomoPage<T> _nestedPageFromRouteInfo<T>(
     RouteInfo routeInfo,
     Widget page, {
+    AppRoute? route,
     JsonMap? urlArguments,
   }) {
     return NestedNomoPage(
       routeInfo: routeInfo,
       page: page,
       urlArguments: urlArguments,
+      route: route,
       key: UniqueKey(),
     );
   }
