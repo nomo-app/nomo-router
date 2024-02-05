@@ -132,6 +132,8 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       }
     }
 
+    print("Stack: $_stack");
+
     return NomoNavigatorWrapper(
       delegate: this,
       key: nomoNavigatorKey,
@@ -271,7 +273,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     Object? arguments,
     JsonMap? urlArgs,
   }) {
-    pop();
+    _stack.removeLast().didPop();
     return pushNamed(path, arguments: arguments, urlArgs: urlArgs);
   }
 
