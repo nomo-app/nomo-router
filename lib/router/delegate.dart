@@ -331,14 +331,14 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     return push(route);
   }
 
-  void popUntil(bool Function(RouteInfo) predicate) {
-    while (!predicate(_stack.last.routeInfo)) {
+  void popUntil(bool Function(NomoPage) predicate) {
+    while (!predicate(_stack.last) && _stack.length > 1) {
       pop();
     }
   }
 
   Future<T> popUntilAndPush<T>(
-      AppRoute route, bool Function(RouteInfo) predicate) {
+      AppRoute route, bool Function(NomoPage) predicate) {
     popUntil(predicate);
     return push(route);
   }

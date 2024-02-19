@@ -22,10 +22,10 @@ abstract class NomoNavigatorFunctions {
     JsonMap? urlArguments,
   });
 
-  void popUntil(bool Function(RouteInfo) predicate);
+  void popUntil(bool Function(NomoPage) predicate);
 
   Future<T> popUntilAndPush<T>(
-      AppRoute route, bool Function(RouteInfo) predicate);
+      AppRoute route, bool Function(NomoPage) predicate);
 
   bool pop<T>([T? result]);
 
@@ -136,7 +136,7 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
       _delegate.replaceNamed(routeName, urlArgs: urlArguments);
 
   @override
-  void popUntil(bool Function(RouteInfo) predicate) =>
+  void popUntil(bool Function(NomoPage) predicate) =>
       _delegate.popUntil(predicate);
 
   @override
@@ -215,7 +215,7 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
 
   @override
   Future<T> popUntilAndPush<T>(
-      AppRoute route, bool Function(RouteInfo route) predicate) {
+      AppRoute route, bool Function(NomoPage route) predicate) {
     return _delegate.popUntilAndPush(route, predicate);
   }
 
@@ -268,7 +268,7 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
       _delegate.replaceNamed(routeName, urlArgs: urlArguments);
 
   @override
-  void popUntil(bool Function(RouteInfo) predicate) =>
+  void popUntil(bool Function(NomoPage) predicate) =>
       _delegate.popUntil(predicate);
 
   @override
@@ -298,7 +298,7 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
 
   @override
   Future<T> popUntilAndPush<T>(
-      AppRoute route, bool Function(RouteInfo route) predicate) {
+      AppRoute route, bool Function(NomoPage route) predicate) {
     return _delegate.popUntilAndPush(route, predicate);
   }
 
