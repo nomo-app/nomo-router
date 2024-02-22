@@ -46,12 +46,6 @@ class AppRouter extends NomoAppRouter {
                 id: typedArgs?.id,
               );
             },
-            TestScreenRootRoute.path: ([a]) {
-              final typedArgs = a as TestScreenRootArguments?;
-              return TestScreenRootRoute(
-                id: typedArgs?.id ?? TestEnum.one,
-              );
-            },
           },
           _routes.expanded.where((r) => r is! NestedPageRouteInfo).toList(),
           _routes.expanded.whereType<NestedPageRouteInfo>().toList(),
@@ -183,25 +177,4 @@ class SettingsModalRoute extends AppRoute implements SettingsModalArguments {
           ),
         );
   static String path = '/settings';
-}
-
-class TestScreenRootArguments {
-  final TestEnum id;
-  const TestScreenRootArguments({
-    required this.id,
-  });
-}
-
-class TestScreenRootRoute extends AppRoute implements TestScreenRootArguments {
-  @override
-  final TestEnum id;
-  TestScreenRootRoute({
-    this.id = TestEnum.one,
-  }) : super(
-          name: '/',
-          page: TestScreen(
-            id: id,
-          ),
-        );
-  static String path = '/';
 }

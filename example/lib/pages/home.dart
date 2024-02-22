@@ -13,8 +13,12 @@ class HomeScreen extends StatelessWidget {
     return const Column(
       children: [
         Center(
-          child: Text('Home Screen'),
+          child: Text(
+            'Home Screen',
+            style: TextStyle(fontSize: 32),
+          ),
         ),
+        SizedBox(height: 20),
         RouteSelector(),
       ],
     );
@@ -29,14 +33,20 @@ class RouteSelector extends StatelessWidget {
     return Column(
       children: [
         for (final r in appRouter.routeInfos)
-          ElevatedButton(
-            onPressed: () {
-              NomoNavigator.of(context).push(
-                appRouter.getRouteForPath(r.path)(),
-              );
-            },
-            child: Text(r.path),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                NomoNavigator.of(context).push(
+                  appRouter.getRouteForPath(r.path)(),
+                );
+              },
+              child: Text(r.path),
+            ),
           ),
+        const SizedBox(
+          height: 8,
+        ),
         ElevatedButton(
           onPressed: () {
             NomoNavigator.of(context).push(TestScreenRoute(
@@ -45,11 +55,17 @@ class RouteSelector extends StatelessWidget {
           },
           child: const Text("Test with Id"),
         ),
+        const SizedBox(
+          height: 8,
+        ),
         ElevatedButton(
           onPressed: () {
             NomoNavigator.of(context).pushNamed("/amkrandom");
           },
           child: const Text("Random"),
+        ),
+        const SizedBox(
+          height: 8,
         ),
         ElevatedButton(
           onPressed: () {
@@ -59,11 +75,8 @@ class RouteSelector extends StatelessWidget {
           },
           child: const Text("Without Context"),
         ),
-        ElevatedButton(
-          onPressed: () {
-            NomoNavigator.of(context).pop();
-          },
-          child: const Text("Pop"),
+        const SizedBox(
+          height: 8,
         ),
         ElevatedButton(
           onPressed: () {
@@ -89,10 +102,12 @@ class Modal extends StatelessWidget {
     return Container(
       width: 200,
       height: 200,
-      color: Colors.red,
-      child: TextButton(
-        onPressed: () => NomoNavigator.of(context).pop(),
-        child: const Text("Close"),
+      color: Colors.white,
+      child: Center(
+        child: TextButton(
+          onPressed: () => NomoNavigator.of(context).pop(),
+          child: const Text("Close"),
+        ),
       ),
     );
   }

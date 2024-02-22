@@ -32,7 +32,6 @@ class _MainAppState extends State<MainApp> {
       defaultTransistion: const PageSharedAxisTransition(
         type: SharedAxisTransitionType.horizontal,
       ),
-      defaultModalTransistion: const PageSlideTransition(),
       child: MaterialApp.router(
         routerDelegate: delegate,
         routeInformationParser: const NomoRouteInformationParser(),

@@ -21,8 +21,12 @@ class TestScreen extends StatelessWidget {
     return Column(
       children: [
         Center(
-          child: Text('Test SCreen: $id'),
+          child: Text(
+            'Test Screen with id: $id',
+            style: const TextStyle(fontSize: 32),
+          ),
         ),
+        const SizedBox(height: 20),
         const RouteSelector(),
       ],
     );

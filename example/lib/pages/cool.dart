@@ -9,8 +9,12 @@ class CoolScreen extends StatelessWidget {
     return const Column(
       children: [
         Center(
-          child: Text('Cool asasd'),
+          child: Text(
+            'Cool Screen',
+            style: TextStyle(fontSize: 32),
+          ),
         ),
+        SizedBox(height: 20),
         RouteSelector(),
       ],
     );

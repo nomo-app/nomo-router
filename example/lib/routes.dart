@@ -13,6 +13,7 @@ Widget wrap(Widget nav) {
   return Scaffold(
     appBar: AppBar(
       title: const Text("Nomo Router"),
+      elevation: 2,
     ),
     body: nav,
   );
@@ -21,7 +22,6 @@ Widget wrap(Widget nav) {
 @AppRoutes()
 const _routes = [
   NestedPageRouteInfo(
-    pathPrefix: "/",
     wrapper: wrap,
     children: [
       PageRouteInfo(
@@ -51,10 +51,5 @@ const _routes = [
   ModalRouteInfo(
     path: '/settings',
     page: SettingsModal,
-  ),
-  PageRouteInfo(
-    path: '/',
-    page: TestScreen,
-    routePostfix: "Root",
   ),
 ];

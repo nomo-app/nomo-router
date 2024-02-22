@@ -64,7 +64,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         return Navigator(
           pages: pages,
           observers: nestedObservers,
-          key: _nestedNavigatorKey,
+          //   key: _nestedNavigatorKey,
           onPopPage: (route, result) {
             if (!route.didPop(result)) {
               return false;
