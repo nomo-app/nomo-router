@@ -119,14 +119,14 @@ final class MenuPageRouteInfo extends PageRouteInfo with MenuRouteInfoMixin {
   @override
   final IconData? icon;
   @override
-  final ImageProvider? image;
+  final String? imagePath;
 
   const MenuPageRouteInfo({
     required super.path,
     required super.page,
     required this.title,
     this.icon,
-    this.image,
+    this.imagePath,
     super.children,
     super.transition,
     super.routePostfix,
@@ -140,7 +140,7 @@ final class MenuPageRouteInfo extends PageRouteInfo with MenuRouteInfoMixin {
       page: page,
       title: title,
       icon: icon,
-      image: image,
+      imagePath: imagePath,
       children: children,
     );
   }
@@ -152,7 +152,7 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
   @override
   final IconData? icon;
   @override
-  final ImageProvider? image;
+  final String? imagePath;
 
   const MenuModalRouteInfo({
     required super.path,
@@ -163,7 +163,7 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
     super.useRootNavigator,
     super.routePostfix,
     this.icon,
-    this.image,
+    this.imagePath,
   });
 
   @override
@@ -174,7 +174,7 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
       page: page,
       title: title,
       icon: icon,
-      image: image,
+      imagePath: imagePath,
       children: children,
       useRootNavigator: useRootNavigator,
     );
@@ -184,5 +184,5 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
 mixin MenuRouteInfoMixin on RouteInfo {
   String get title;
   IconData? get icon;
-  ImageProvider? get image;
+  String? get imagePath;
 }
