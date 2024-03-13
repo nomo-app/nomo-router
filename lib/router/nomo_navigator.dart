@@ -140,7 +140,7 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
       _delegate.popUntil(predicate);
 
   @override
-  bool pop<T>([T? result]) => _delegate.popWithKey(result);
+  bool pop<T>([T? result]) => _delegate.pop(result);
 
   @override
   bool popRoot<T>([T? result]) => _delegate.popRoot(result);
@@ -241,6 +241,11 @@ class NomoNavigatorWrapper extends StatefulWidget {
 class NomoNavigatorState extends State<NomoNavigatorWrapper>
     implements NomoNavigatorFunctions {
   NomoRouterDelegate get _delegate => widget._delegate;
+
+  NavigatorState get navState => _delegate.navigatorKey.currentState!;
+
+  NavigatorState get nestedNavState =>
+      _delegate.nestedNavigatorKey.currentState!;
 
   @override
   Future<T> push<T>(AppRoute route) => _delegate.push(route);

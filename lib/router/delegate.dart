@@ -65,6 +65,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
           pages: pages,
           observers: nestedObservers,
           //   key: _nestedNavigatorKey,
+
           onPopPage: (route, result) {
             if (!route.didPop(result)) {
               return false;
@@ -92,6 +93,8 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   @override
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
+
+  GlobalKey<NavigatorState> get nestedNavigatorKey => _nestedNavigatorKey;
 
   @override
   RouterConfiguration get currentConfiguration => _stack;
