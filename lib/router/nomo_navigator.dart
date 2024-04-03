@@ -156,7 +156,6 @@ class NomoNavigator extends InheritedWidget implements NomoNavigatorFunctions {
   }) {
     return _delegate.pushModal(
       modal: modal,
-      useRootNavigator: useRootNavigator,
       transition: transition,
     );
   }
@@ -244,9 +243,6 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
 
   NavigatorState get navState => _delegate.navigatorKey.currentState!;
 
-  NavigatorState get nestedNavState =>
-      _delegate.nestedNavigatorKey.currentState!;
-
   @override
   Future<T> push<T>(AppRoute route) => _delegate.push(route);
 
@@ -296,7 +292,6 @@ class NomoNavigatorState extends State<NomoNavigatorWrapper>
   }) {
     return _delegate.pushModal(
       modal: modal,
-      useRootNavigator: useRootNavigator,
       transition: transition,
     );
   }

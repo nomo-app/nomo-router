@@ -1,6 +1,9 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
+// ignore: implementation_imports
 import 'package:build/src/builder/build_step.dart';
 import 'package:collection/collection.dart';
 import 'package:route_gen/anotations.dart';
@@ -10,12 +13,14 @@ typedef Route = Map<String, DartObject>;
 
 class ResolvedRoute {
   final String path;
+  final String? pathPrefix;
   final String namePostfix;
   final ParameterizedType? pageType;
   final List<ResolvedRoute> children;
 
   ResolvedRoute prependPath(String path) {
     if (path == "/") return this;
+
     return ResolvedRoute(
       path: path + this.path,
       namePostfix: namePostfix,
@@ -29,6 +34,7 @@ class ResolvedRoute {
     required this.namePostfix,
     required this.pageType,
     required this.children,
+    this.pathPrefix,
   });
 }
 
@@ -50,7 +56,7 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
 
     final resolvedRoutes = resolveRoutes(routesList ?? []);
 
-    final expandedRoutes = expandRoutes(resolvedRoutes);
+    final expandedRoutes = expandRoutes(resolvedRoutes).toList();
 
     final routes = expandedRoutes.map((listItem) {
       final pageType = listItem.pageType;
@@ -94,17 +100,18 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     for (final route in routes) {
       final name = "${route.$1}${route.$2}";
 
-      if (route.$4.isEmpty)
+      if (route.$4.isEmpty) {
         buffer.writeln("${name}Route.path: ([a]) => ${name}Route(),");
-      else {
+      } else {
         buffer.writeln("${name}Route.path: ([a]) {");
         buffer.writeln("final typedArgs = a as ${name}Arguments?;");
         buffer.writeln("return ${name}Route(");
         for (final field in route.$4) {
-          if (field.$3 != null)
+          if (field.$3 != null) {
             buffer.write("${field.$2}: typedArgs?.${field.$2} ?? ${field.$3},");
-          else
+          } else {
             buffer.writeln("${field.$2}: typedArgs?.${field.$2},");
+          }
         }
         buffer.writeln(");");
         buffer.writeln("},");
@@ -112,9 +119,8 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     }
     buffer.writeln("},");
     buffer.writeln(
-        "${name}.expanded.where((r) => r is! NestedPageRouteInfo).toList(),");
-    buffer
-        .writeln("${name}.expanded.whereType<NestedPageRouteInfo>().toList(),");
+        "$name.expanded.where((r) => r is! NestedPageRouteInfo).toList(),");
+    buffer.writeln("$name.expanded.whereType<NestedPageRouteInfo>().toList(),");
     buffer.writeln(");");
 
     buffer.writeln("}");
@@ -138,7 +144,7 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
   ) {
     final (name, postFix, path, args) = route;
 
-    final nameWithPostFix = "${name}${postFix}";
+    final nameWithPostFix = "$name$postFix";
 
     /// Args
     buffer.writeln("class ${nameWithPostFix}Arguments {");
@@ -174,16 +180,17 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     buffer.writeln("${nameWithPostFix}Route(");
     if (args.isNotEmpty) buffer.writeln("{");
     for (final field in args) {
-      if (field.$3 != null)
+      if (field.$3 != null) {
         buffer.write("this.${field.$2} = ${field.$3}, ");
-      else
+      } else {
         buffer.writeln("this.${field.$2},");
+      }
     }
     if (args.isNotEmpty) buffer.writeln("}");
     buffer.writeln(")");
     buffer.writeln(": super(");
     buffer.writeln("name: '$path',");
-    buffer.writeln("page: ${name}(");
+    buffer.writeln("page: $name(");
     for (final field in args) {
       buffer.writeln("${field.$2}: ${field.$2},");
     }
@@ -215,7 +222,7 @@ List<ResolvedRoute> expandChildren(ResolvedRoute route) {
   final recursedChildren = route.children
       .map(
         (r) {
-          return expandChildren(r.prependPath(route.path));
+          return expandChildren(r.prependPath(route.pathPrefix ?? route.path));
         },
       )
       .expand((e) => e)
@@ -239,6 +246,7 @@ List<ResolvedRoute> resolveRoutes(List<Route> routes) {
 
 ResolvedRoute resolveRoute(Route route) {
   final path = route["path"]?.toStringValue() ?? "/";
+  final pathPrefix = route["pathPrefix"]?.toStringValue();
   final namePostfix = route["routePostfix"]?.toStringValue() ?? "";
   final pageType = route["page"]?.toTypeValue() as ParameterizedType?;
 
@@ -253,5 +261,6 @@ ResolvedRoute resolveRoute(Route route) {
     namePostfix: namePostfix,
     pageType: pageType,
     children: children ?? [],
+    pathPrefix: pathPrefix,
   );
 }

@@ -10,33 +10,35 @@ class SettingsModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.transparency,
-      child: Container(
-        width: 400,
-        height: 800,
-        color: Colors.white,
-        child: Column(
-          children: [
-            Center(
-              child: Text(
-                'Settings:  $id',
-                style: const TextStyle(fontSize: 32),
+    return Center(
+      child: Material(
+        type: MaterialType.transparency,
+        child: Container(
+          width: 400,
+          height: 800,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Center(
+                child: Text(
+                  'Settings:  $id',
+                  style: const TextStyle(fontSize: 32),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const RouteSelector(),
-            ElevatedButton(
-              onPressed: () {
-                NomoNavigator.of(context).push(
-                  SettingsModalRoute(id: "amk"),
-                );
-              },
-              child: const Text(
-                "Settings with id",
+              const SizedBox(height: 20),
+              const RouteSelector(),
+              ElevatedButton(
+                onPressed: () {
+                  NomoNavigator.of(context).push(
+                    SettingsModalRoute(id: "amk"),
+                  );
+                },
+                child: const Text(
+                  "Settings with id",
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

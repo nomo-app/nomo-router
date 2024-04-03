@@ -32,6 +32,8 @@ sealed class NomoPage<T> extends Page {
   Route<T> createRoute(BuildContext context) {
     final transition =
         routeInfo.transition ?? NomoNavigator.of(context).defaultTransistion;
+    final modalTransition = routeInfo.transition ??
+        NomoNavigator.of(context).defaultModalTransistion;
 
     return switch (routeInfo) {
       ModalRouteInfo _ => NomoModalRoute(
@@ -42,7 +44,7 @@ sealed class NomoPage<T> extends Page {
           transitionDuration:
               NomoNavigator.of(context).defaultModalTransitionDuration,
           transitionBuilder: (context, anim, secAnim, child) {
-            return transition.getTransition(context, anim, secAnim, child);
+            return modalTransition.getTransition(context, anim, secAnim, child);
           },
           builder: (context) {
             return SafeArea(
@@ -98,23 +100,21 @@ final class RootNomoPage<T> extends NomoPage<T> {
     super.key,
     super.urlArguments,
   });
-
-  @override
-  String toString() {
-    return "r(${super.toString()})";
-  }
 }
 
 final class NestedNomoPage<T> extends NomoPage<T> {
+  final Key navKey;
+
   @override
   String toString() {
-    return "n(${super.toString()})";
+    return "$navKey${super.toString()}";
   }
 
   NestedNomoPage({
     required super.routeInfo,
     required super.page,
     required super.route,
+    required this.navKey,
     super.arguments,
     super.key,
     super.urlArguments,
@@ -144,4 +144,25 @@ class NomoModalRoute<T> extends RawDialogRoute<T> {
           barrierLabel: barrierLabel ??
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
         );
+}
+
+final class NestedNavigatorPage extends RootNomoPage {
+  @override
+  final NestedPageRouteInfo routeInfo;
+
+  NestedNavigatorPage({
+    required this.routeInfo,
+    required super.page,
+    required super.route,
+    super.arguments,
+    super.key,
+    super.urlArguments,
+  }) : super(
+          routeInfo: routeInfo,
+        );
+
+  @override
+  String toString() {
+    return "NestedNav${routeInfo.key}";
+  }
 }

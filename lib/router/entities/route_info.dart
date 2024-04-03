@@ -92,11 +92,15 @@ final class ModalRouteInfo extends RouteInfo {
 
 final class NestedPageRouteInfo extends PageRouteInfo {
   final Widget Function(Widget nav) wrapper;
+  final Key key;
+  final GlobalKey<NavigatorState>? navigatorKey;
 
   const NestedPageRouteInfo({
     String? pathPrefix,
     required this.wrapper,
     required super.children,
+    required this.key,
+    this.navigatorKey,
   }) : super(
           path: pathPrefix ?? "/",
           page: String,
