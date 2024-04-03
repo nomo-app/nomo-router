@@ -3,11 +3,15 @@ import 'package:nomo_router/router/entities/nomo_page.dart';
 
 class RouteInfoProvider extends InheritedWidget {
   final NomoPage route;
+  final bool isPage;
+  final bool isModal;
 
   const RouteInfoProvider({
     super.key,
     required super.child,
     required this.route,
+    required this.isPage,
+    required this.isModal,
   });
 
   static RouteInfoProvider? maybeOf(BuildContext context) {

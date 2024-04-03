@@ -36,7 +36,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   final List<NavigatorObserver> observers;
   final List<NavigatorObserver> nestedObservers;
 
+  ///
+  /// Used for Dynamic Routes
+  ///
   final Map<ModalRouteInfo, bool> _modalStates = {};
+  final Map<GlobalKey, LocalKey> _pagesKeys = {};
 
   NomoRouterDelegate({
     this.initial,
@@ -96,7 +100,13 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
           _stack.singleWhereOrNull((element) => element.routeInfo == modal);
       if (page == null) continue;
 
-      _stack[_stack.indexOf(page)] = page.copy;
+      final copy = page.copy;
+      _stack[_stack.indexOf(page)] = copy;
+
+      if (page.page.key is GlobalKey) {
+        _pagesKeys[page.page.key as GlobalKey] = copy.key!;
+      }
+
       _modalStates[modal] = result;
       notifiy = true;
     }
@@ -133,6 +143,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
     return NestedNavigatorPage(
       page: info.wrapper(child),
+      pageWithoutKey: info.wrapper(child),
       routeInfo: info,
       route: null,
       key: ValueKey(key),
@@ -190,6 +201,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       key: nomoNavigatorKey,
       child: NomoNavigatorInformationProvider(
         current: current,
+        keys: _pagesKeys,
         child: Navigator(
           key: _navigatorKey,
           onPopPage: _handlePopPage,
@@ -484,12 +496,16 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     AppRoute? route,
     JsonMap? urlArguments,
   }) {
+    final gk = GlobalKey();
+    final uk = UniqueKey();
+    _pagesKeys[gk] = uk;
     return RootNomoPage(
       routeInfo: routeInfo,
-      page: page,
+      page: SizedBox(key: gk, child: page),
+      pageWithoutKey: page,
       urlArguments: urlArguments,
       route: route,
-      key: UniqueKey(),
+      key: uk,
     );
   }
 
@@ -499,12 +515,16 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     AppRoute? route,
     JsonMap? urlArguments,
   }) {
+    final gk = GlobalKey();
+    final uk = UniqueKey();
+    _pagesKeys[gk] = uk;
     return NestedNomoPage(
       routeInfo: routeInfo,
-      page: page,
+      page: SizedBox(key: gk, child: page),
+      pageWithoutKey: page,
       urlArguments: urlArguments,
       route: route,
-      key: UniqueKey(),
+      key: uk,
       navKey: getNavKeyFromRouteInfo(routeInfo),
     );
   }
