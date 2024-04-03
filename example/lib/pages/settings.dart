@@ -1,6 +1,7 @@
 import 'package:example/pages/home.dart';
 import 'package:example/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nomo_router/router/nomo_navigator.dart';
 
 class SettingsModal extends StatelessWidget {
@@ -25,6 +26,7 @@ class SettingsModal extends StatelessWidget {
                   style: const TextStyle(fontSize: 32),
                 ),
               ),
+              TextField(),
               const SizedBox(height: 20),
               const RouteSelector(),
               ElevatedButton(

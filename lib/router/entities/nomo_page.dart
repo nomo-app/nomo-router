@@ -28,15 +28,42 @@ sealed class NomoPage<T> extends Page {
     super.key,
   }) : super(name: routeInfo.path);
 
+  NomoPage<T> get copy {
+    return switch (this) {
+      NestedNomoPage<T> r => NestedNomoPage<T>(
+          routeInfo: routeInfo,
+          page: page,
+          route: route,
+          navKey: r.navKey,
+          arguments: arguments,
+          key: UniqueKey(),
+          urlArguments: urlArguments,
+        ),
+      RootNomoPage<T> _ => RootNomoPage<T>(
+          routeInfo: routeInfo,
+          page: page,
+          route: route,
+          arguments: arguments,
+          key: UniqueKey(),
+          urlArguments: urlArguments,
+        ),
+    };
+  }
+
   @override
   Route<T> createRoute(BuildContext context) {
     final transition =
         routeInfo.transition ?? NomoNavigator.of(context).defaultTransistion;
-    final modalTransition = routeInfo.transition ??
-        NomoNavigator.of(context).defaultModalTransistion;
 
-    return switch (routeInfo) {
-      ModalRouteInfo _ => NomoModalRoute(
+    if (routeInfo is ModalRouteInfo) {
+      final modalTransition = routeInfo.transition ??
+          NomoNavigator.of(context).defaultModalTransistion;
+      final modalRouteInfo = routeInfo as ModalRouteInfo;
+
+      final usePage = modalRouteInfo.whenPage?.call(context);
+
+      if (usePage == false) {
+        return NomoModalRoute(
           context: context,
           settings: this,
           barrierColor: Colors.black12,
@@ -54,35 +81,35 @@ sealed class NomoPage<T> extends Page {
               ),
             );
           },
-        ),
-      PageRouteInfo _ => PageRouteBuilder(
-          settings: this,
-          transitionDuration:
-              NomoNavigator.of(context).defaultTransitionDuration,
-          maintainState: true,
-          opaque: true,
-          transitionsBuilder: (
-            context,
-            animation,
-            secondaryAnimation,
-            child,
-          ) {
-            return transition.getTransition(
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-            );
-          },
-          pageBuilder: (context, _, __) {
-            return RouteInfoProvider(
-              route: this,
-              child: page,
-            );
-          },
-        ),
-      MenuRouteInfoMixin _ => throw Exception("Should never be reached")
-    };
+        );
+      }
+    }
+
+    return PageRouteBuilder(
+      settings: this,
+      transitionDuration: NomoNavigator.of(context).defaultTransitionDuration,
+      maintainState: true,
+      opaque: true,
+      transitionsBuilder: (
+        context,
+        animation,
+        secondaryAnimation,
+        child,
+      ) {
+        return transition.getTransition(
+          context,
+          animation,
+          secondaryAnimation,
+          child,
+        );
+      },
+      pageBuilder: (context, _, __) {
+        return RouteInfoProvider(
+          route: this,
+          child: page,
+        );
+      },
+    );
   }
 
   @override

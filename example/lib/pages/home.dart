@@ -89,6 +89,20 @@ class RouteSelector extends StatelessWidget {
           },
           child: const Text("Show Dialog"),
         ),
+        const SizedBox(
+          height: 8,
+        ),
+        ElevatedButton(
+          onPressed: () {
+            NomoNavigator.of(context).pushModal(
+              transition: const PageFadeScaleTransition(),
+              modal: const Center(
+                child: Modal(),
+              ),
+            );
+          },
+          child: const Text("Show Dialog / Page"),
+        ),
       ],
     );
   }

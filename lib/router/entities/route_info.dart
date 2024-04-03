@@ -69,12 +69,15 @@ final class PageRouteInfo extends RouteInfo {
 final class ModalRouteInfo extends RouteInfo {
   final bool useRootNavigator;
 
+  final bool Function(BuildContext context)? whenPage;
+
   const ModalRouteInfo({
     required super.path,
     required super.page,
     super.children,
     super.transition,
     super.routePostfix,
+    this.whenPage,
     this.useRootNavigator = true,
   });
 

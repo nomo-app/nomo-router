@@ -9,7 +9,10 @@ import 'package:nomo_router/router/entities/transitions.dart';
 final nomoNavigatorKey = GlobalKey<NomoNavigatorState>();
 
 class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
-    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouterConfiguration> {
+    with
+        ChangeNotifier,
+        PopNavigatorRouterDelegateMixin<RouterConfiguration>,
+        WidgetsBindingObserver {
   // Root navigator key
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -33,12 +36,16 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   final List<NavigatorObserver> observers;
   final List<NavigatorObserver> nestedObservers;
 
+  final Map<ModalRouteInfo, bool> _modalStates = {};
+
   NomoRouterDelegate({
     this.initial,
     required this.appRouter,
     this.observers = const [],
     this.nestedObservers = const [],
   }) {
+    WidgetsBinding.instance.addObserver(this);
+
     initialRouteInfo = initial != null
         ? PageRouteInfo(
             path: "/",
@@ -63,6 +70,40 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       for (final nestedRoute in nestedNavRoutes)
         nestedRoute: nestedRoute.underlying,
     };
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final modalsToRecalculate = routeInfos
+        .whereType<ModalRouteInfo>()
+        .where((element) => element.whenPage != null);
+
+    bool notifiy = false;
+
+    for (final modal in modalsToRecalculate) {
+      final result = modal.whenPage!(nomoNavigatorKey.currentContext!);
+      final previousResult = _modalStates[modal];
+
+      if (result == previousResult) continue;
+
+      final page =
+          _stack.singleWhereOrNull((element) => element.routeInfo == modal);
+      if (page == null) continue;
+
+      _stack[_stack.indexOf(page)] = page.copy;
+      _modalStates[modal] = result;
+      notifiy = true;
+    }
+
+    if (notifiy) {
+      notifyListeners();
+    }
   }
 
   NestedNavigatorPage _getNestedRouterPage(NestedPageRouteInfo info) {

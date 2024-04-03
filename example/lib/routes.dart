@@ -41,6 +41,11 @@ Widget wrapCool(Widget nav) {
   );
 }
 
+bool whenPage(BuildContext context) {
+  final width = MediaQuery.of(context).size.width;
+  return width < 600;
+}
+
 @AppRoutes()
 const _routes = [
   NestedPageRouteInfo(
@@ -56,6 +61,7 @@ const _routes = [
         page: TestScreen,
       ),
       ModalRouteInfo(
+        whenPage: whenPage,
         path: "/nestedSettings",
         page: SettingsModal,
         routePostfix: "Nested",
