@@ -5,6 +5,7 @@ import 'package:example/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
+import 'package:nomo_router/router/entities/route_info.dart';
 import 'package:nomo_router/router/entities/transitions.dart';
 import 'package:route_gen/anotations.dart';
 
@@ -42,14 +43,17 @@ Widget wrapCool(Widget nav) {
   );
 }
 
-bool whenPage(BuildContext context) {
+RouteType whenPage(BuildContext context) {
   final width = MediaQuery.of(context).size.width;
-  return width < 600;
+  return switch (width) {
+    < 600 => RouteType.modal,
+    _ => RouteType.page,
+  };
 }
 
 @AppRoutes()
 const _routes = [
-  NestedPageRouteInfo(
+  NestedNavigator(
     wrapper: wrap,
     key: ValueKey("def"),
     children: [
@@ -61,8 +65,8 @@ const _routes = [
         path: '/test',
         page: TestScreen,
       ),
-      ModalRouteInfo(
-        whenPage: whenPage,
+      DynamicRouteInfo(
+        when: whenPage,
         path: "/nestedSettings",
         page: SettingsModal,
         routePostfix: "Nested",
@@ -71,7 +75,7 @@ const _routes = [
       )
     ],
   ),
-  NestedPageRouteInfo(
+  NestedNavigator(
     wrapper: wrapCool,
     key: ValueKey("cool"),
     pathPrefix: "/c",

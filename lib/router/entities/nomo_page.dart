@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
+import 'package:nomo_router/router/entities/transitions.dart';
 
 sealed class NomoPage<T> extends Page {
   final RouteInfo routeInfo;
@@ -54,58 +55,15 @@ sealed class NomoPage<T> extends Page {
     };
   }
 
-  @override
-  Route<T> createRoute(BuildContext context) {
-    final transition =
-        routeInfo.transition ?? NomoNavigator.of(context).defaultTransistion;
-
-    if (routeInfo is ModalRouteInfo) {
-      final modalTransition = routeInfo.transition ??
-          NomoNavigator.of(context).defaultModalTransistion;
-      final modalRouteInfo = routeInfo as ModalRouteInfo;
-
-      final usePage = modalRouteInfo.whenPage?.call(context);
-
-      if (usePage == false) {
-        return NomoModalRoute(
-          context: context,
-          settings: this,
-          barrierColor: Colors.black12,
-          barrierDismissible: true,
-          transitionDuration:
-              NomoNavigator.of(context).defaultModalTransitionDuration,
-          transitionBuilder: (context, anim, secAnim, child) {
-            return modalTransition.getTransition(context, anim, secAnim, child);
-          },
-          builder: (context) {
-            final navInfo = NomoNavigatorInformationProvider.of(context).keys;
-
-            if (navInfo.containsValue(key) == false) {
-              return RouteInfoProvider(
-                route: this,
-                isModal: true,
-                isPage: false,
-                child: pageWithoutKey,
-              );
-            }
-
-            return SafeArea(
-              child: RouteInfoProvider(
-                route: this,
-                isModal: true,
-                isPage: false,
-                child: Center(child: page),
-              ),
-            );
-          },
-        );
-      }
-    }
-
+  static Route<T> _pageRoute<T>({
+    required RouteInfo routeInfo,
+    required NomoPage<T> pageRoute,
+    required Duration transitionDuration,
+    required PageTransition transition,
+  }) {
     return PageRouteBuilder(
-      settings: this,
-      transitionDuration: NomoNavigator.of(context).defaultTransitionDuration,
-      // reverseTransitionDuration: Duration.zero,
+      settings: pageRoute,
+      transitionDuration: transitionDuration,
       maintainState: true,
       opaque: true,
       transitionsBuilder: (
@@ -124,23 +82,105 @@ sealed class NomoPage<T> extends Page {
       pageBuilder: (context, _, __) {
         final navInfo = NomoNavigatorInformationProvider.of(context).keys;
 
-        if (navInfo.containsValue(key) == false &&
-            this is! NestedNavigatorPage) {
+        if (navInfo.containsValue(pageRoute.key) == false &&
+            pageRoute is! NestedNavigatorPage) {
           return RouteInfoProvider(
-            route: this,
-            isModal: false,
-            isPage: true,
-            child: pageWithoutKey,
+            route: pageRoute,
+            type: RouteType.page,
+            child: pageRoute.pageWithoutKey,
           );
         }
         return RouteInfoProvider(
-          route: this,
-          isModal: false,
-          isPage: true,
-          child: page,
+          route: pageRoute,
+          type: RouteType.page,
+          child: pageRoute.page,
         );
       },
     );
+  }
+
+  static Route<T> _modalRoute<T>({
+    required RouteInfo routeInfo,
+    required NomoPage<T> pageRoute,
+    required Duration transitionDuration,
+    required PageTransition transition,
+    required BuildContext context,
+  }) {
+    return NomoModalRoute(
+      context: context,
+      settings: pageRoute,
+      barrierColor: Colors.black12,
+      barrierDismissible: true,
+      transitionDuration: transitionDuration,
+      transitionBuilder: (context, anim, secAnim, child) {
+        return transition.getTransition(context, anim, secAnim, child);
+      },
+      builder: (context) {
+        final navInfo = NomoNavigatorInformationProvider.of(context).keys;
+
+        if (navInfo.containsValue(pageRoute.key) == false) {
+          return RouteInfoProvider(
+            route: pageRoute,
+            type: RouteType.modal,
+            child: pageRoute.pageWithoutKey,
+          );
+        }
+
+        return SafeArea(
+          child: RouteInfoProvider(
+            route: pageRoute,
+            type: RouteType.modal,
+            child: Center(child: pageRoute.page),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Route<T> createRoute(BuildContext context) {
+    return switch (routeInfo) {
+      DynamicRouteInfo dynamicRouteInfo => () {
+          final type = dynamicRouteInfo.when.call(context);
+
+          return switch (type) {
+            RouteType.modal => _modalRoute(
+                routeInfo: dynamicRouteInfo,
+                pageRoute: this,
+                transitionDuration:
+                    NomoNavigator.of(context).defaultModalTransitionDuration,
+                transition: dynamicRouteInfo.transition ??
+                    NomoNavigator.of(context).defaultModalTransistion,
+                context: context,
+              ),
+            RouteType.page => _pageRoute(
+                routeInfo: dynamicRouteInfo,
+                pageRoute: this,
+                transitionDuration:
+                    NomoNavigator.of(context).defaultTransitionDuration,
+                transition: dynamicRouteInfo.transition ??
+                    NomoNavigator.of(context).defaultTransistion,
+              ),
+          };
+        }.call(),
+      ModalRouteInfo modalRouteInfo => _modalRoute(
+          routeInfo: modalRouteInfo,
+          pageRoute: this,
+          transitionDuration:
+              NomoNavigator.of(context).defaultModalTransitionDuration,
+          transition: modalRouteInfo.transition ??
+              NomoNavigator.of(context).defaultModalTransistion,
+          context: context,
+        ),
+      _ => _pageRoute(
+          routeInfo: routeInfo,
+          pageRoute: this,
+          transitionDuration:
+              NomoNavigator.of(context).defaultTransitionDuration,
+          transition: routeInfo.transition ??
+              NomoNavigator.of(context).defaultTransistion,
+        ),
+    };
   }
 
   @override
@@ -208,7 +248,7 @@ class NomoModalRoute<T> extends RawDialogRoute<T> {
 
 final class NestedNavigatorPage extends RootNomoPage {
   @override
-  final NestedPageRouteInfo routeInfo;
+  final NestedNavigator routeInfo;
 
   NestedNavigatorPage({
     required this.routeInfo,

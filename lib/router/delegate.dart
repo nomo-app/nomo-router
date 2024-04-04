@@ -22,9 +22,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   late final List<RouteInfo> routeInfos;
 
   /// Nested Routes for each nested navigator
-  late final Map<NestedPageRouteInfo, Iterable<RouteInfo>> nestedRoutes;
+  late final Map<NestedNavigator, Iterable<RouteInfo>> nestedRoutes;
 
-  NestedPageRouteInfo? isNestedRoute(RouteInfo? routeInfo) {
+  NestedNavigator? isNestedRoute(RouteInfo? routeInfo) {
     return nestedRoutes.entries
         .singleWhereOrNull((element) => element.value.contains(routeInfo))
         ?.key;
@@ -39,7 +39,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   ///
   /// Used for Dynamic Routes
   ///
-  final Map<ModalRouteInfo, bool> _modalStates = {};
+  final Map<DynamicRouteInfo, RouteType> _dynRouteStates = {};
   final Map<GlobalKey, LocalKey> _pagesKeys = {};
 
   NomoRouterDelegate({
@@ -74,6 +74,23 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       for (final nestedRoute in nestedNavRoutes)
         nestedRoute: nestedRoute.underlying,
     };
+
+    ///
+    /// Create the initial stack
+    ///
+    final home = routeInfos.singleWhereOrNull((route) => route.path == "/") ??
+        routeInfos.first;
+    final homePage = initial != null
+        ? initial!
+        : appRouter.getRouteForPath(home.path)().page;
+    final navRoute = isNestedRoute(home);
+    _stack = [
+      if (navRoute != null) ...[
+        _getNestedRouterPage(navRoute),
+        _nestedPageFromRouteInfo(home, homePage),
+      ] else
+        _pageFromRouteInfo(home, homePage),
+    ];
   }
 
   @override
@@ -84,20 +101,18 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   @override
   void didChangeMetrics() {
-    final modalsToRecalculate = routeInfos
-        .whereType<ModalRouteInfo>()
-        .where((element) => element.whenPage != null);
+    final dynRoutes = routeInfos.whereType<DynamicRouteInfo>();
 
     bool notifiy = false;
 
-    for (final modal in modalsToRecalculate) {
-      final result = modal.whenPage!(nomoNavigatorKey.currentContext!);
-      final previousResult = _modalStates[modal];
+    for (final dynRoute in dynRoutes) {
+      final result = dynRoute.when(nomoNavigatorKey.currentContext!);
+      final previousResult = _dynRouteStates[dynRoute];
 
       if (result == previousResult) continue;
 
       final page =
-          _stack.singleWhereOrNull((element) => element.routeInfo == modal);
+          _stack.singleWhereOrNull((element) => element.routeInfo == dynRoute);
       if (page == null) continue;
 
       final copy = page.copy;
@@ -107,7 +122,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         _pagesKeys[page.page.key as GlobalKey] = copy.key!;
       }
 
-      _modalStates[modal] = result;
+      _dynRouteStates[dynRoute] = result;
       notifiy = true;
     }
 
@@ -116,7 +131,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     }
   }
 
-  NestedNavigatorPage _getNestedRouterPage(NestedPageRouteInfo info) {
+  NestedNavigatorPage _getNestedRouterPage(NestedNavigator info) {
     final key = info.key;
     final navKey = _nestedNavigatorKeys[key]!;
     final child = AnimatedBuilder(
@@ -154,9 +169,12 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
 
   @override
-  RouterConfiguration get currentConfiguration => _stack;
+  RouterConfiguration get currentConfiguration {
+    print("Stack: $_stack");
+    return _stack;
+  }
 
-  List<NomoPage> _stack = [];
+  late List<NomoPage> _stack;
 
   Map<Key, List<NestedNomoPage>> get nestedStack => {
         for (final nestedNav in _stack.whereType<NestedNavigatorPage>())
@@ -176,26 +194,6 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    /// If the root stack is empty, add the first page which contains the nested stack
-    if (_stack.isEmpty) {
-      final home = routeInfos.singleWhereOrNull((route) => route.path == "/") ??
-          routeInfos.first;
-      final homePage = initial != null
-          ? initial!
-          : appRouter.getRouteForPath(home.path)().page;
-      final navRoute = isNestedRoute(home);
-      if (navRoute != null) {
-        _stack.add(_getNestedRouterPage(navRoute));
-        _stack.add(_nestedPageFromRouteInfo(home, homePage));
-      } else {
-        _stack.add(
-          _pageFromRouteInfo(home, homePage),
-        );
-      }
-    }
-
-    print("Stack: $_stack");
-
     return NomoNavigatorWrapper(
       delegate: this,
       key: nomoNavigatorKey,
@@ -257,6 +255,10 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
             ),
         },
       );
+    }
+
+    if (newStack.isEmpty) {
+      return;
     }
 
     _stack = newStack;

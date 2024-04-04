@@ -69,15 +69,12 @@ final class PageRouteInfo extends RouteInfo {
 final class ModalRouteInfo extends RouteInfo {
   final bool useRootNavigator;
 
-  final bool Function(BuildContext context)? whenPage;
-
   const ModalRouteInfo({
     required super.path,
     required super.page,
     super.children,
     super.transition,
     super.routePostfix,
-    this.whenPage,
     this.useRootNavigator = true,
   });
 
@@ -93,12 +90,39 @@ final class ModalRouteInfo extends RouteInfo {
   }
 }
 
-final class NestedPageRouteInfo extends PageRouteInfo {
+enum RouteType { page, modal }
+
+final class DynamicRouteInfo extends ModalRouteInfo {
+  final RouteType Function(BuildContext context) when;
+
+  const DynamicRouteInfo({
+    required super.path,
+    required super.page,
+    required this.when,
+    super.children,
+    super.transition,
+    super.routePostfix,
+    super.useRootNavigator,
+  });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return DynamicRouteInfo(
+      path: "${other.path}$path",
+      when: when,
+      page: page,
+      children: children,
+    );
+  }
+}
+
+final class NestedNavigator extends RouteInfo {
   final Widget Function(Widget nav) wrapper;
   final Key key;
   final GlobalKey<NavigatorState>? navigatorKey;
 
-  const NestedPageRouteInfo({
+  const NestedNavigator({
     String? pathPrefix,
     required this.wrapper,
     required super.children,
@@ -184,6 +208,42 @@ final class MenuModalRouteInfo extends ModalRouteInfo with MenuRouteInfoMixin {
       imagePath: imagePath,
       children: children,
       useRootNavigator: useRootNavigator,
+    );
+  }
+}
+
+final class MenuDynamicRouteInfo extends DynamicRouteInfo
+    with MenuRouteInfoMixin {
+  @override
+  final String title;
+  @override
+  final IconData? icon;
+  @override
+  final String? imagePath;
+
+  const MenuDynamicRouteInfo({
+    required super.path,
+    required super.page,
+    required super.when,
+    required this.title,
+    this.icon,
+    this.imagePath,
+    super.children,
+    super.transition,
+    super.routePostfix,
+  });
+
+  @override
+  RouteInfo combine(RouteInfo other) {
+    if (other.isRoot) return this;
+    return MenuDynamicRouteInfo(
+      path: "${other.path}$path",
+      when: when,
+      page: page,
+      title: title,
+      icon: icon,
+      imagePath: imagePath,
+      children: children,
     );
   }
 }

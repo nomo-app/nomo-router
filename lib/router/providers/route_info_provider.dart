@@ -1,17 +1,15 @@
 import 'package:flutter/widgets.dart';
-import 'package:nomo_router/router/entities/nomo_page.dart';
+import 'package:nomo_router/nomo_router.dart';
 
 class RouteInfoProvider extends InheritedWidget {
   final NomoPage route;
-  final bool isPage;
-  final bool isModal;
+  final RouteType type;
 
   const RouteInfoProvider({
     super.key,
     required super.child,
     required this.route,
-    required this.isPage,
-    required this.isModal,
+    required this.type,
   });
 
   static RouteInfoProvider? maybeOf(BuildContext context) {
