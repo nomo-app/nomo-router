@@ -210,7 +210,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   @override
   Widget build(BuildContext context) {
     if (_dynRouteStates.isEmpty) {
-      print("Recalculating dynamic routes");
+      debugPrint("Recalculating dynamic routes");
 
       Future.microtask(() => recalculateDynamicRoutes(shouldNotify: false));
     }
@@ -465,15 +465,15 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       useRootNavigator == true || navKey != null,
       "If useRootNavigator is false, a navKey must be provided.",
     );
-    final _navKey = useRootNavigator ? _navigatorKey : navKey!;
+    final navKey0 = useRootNavigator ? _navigatorKey : navKey!;
 
-    if (_navKey.currentContext == null || _navKey.currentState == null) {
+    if (navKey0.currentContext == null || navKey0.currentState == null) {
       return Future.value(null);
     }
 
-    return _navKey.currentState!.push<T>(
+    return navKey0.currentState!.push<T>(
       DialogRoute(
-        context: _navKey.currentContext!,
+        context: navKey0.currentContext!,
         builder: builder,
         barrierColor: barrierColor,
         barrierDismissible: barrierDismissible,

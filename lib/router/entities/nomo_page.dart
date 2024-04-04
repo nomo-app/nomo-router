@@ -248,6 +248,7 @@ class NomoModalRoute<T> extends RawDialogRoute<T> {
 
 final class NestedNavigatorPage extends RootNomoPage {
   @override
+  // ignore: overridden_fields
   final NestedNavigator routeInfo;
 
   NestedNavigatorPage({
