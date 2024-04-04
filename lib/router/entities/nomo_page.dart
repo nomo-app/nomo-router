@@ -81,7 +81,6 @@ sealed class NomoPage<T> extends Page {
       },
       pageBuilder: (context, _, __) {
         final navInfo = NomoNavigatorInformationProvider.of(context).keys;
-
         if (navInfo.containsValue(pageRoute.key) == false &&
             pageRoute is! NestedNavigatorPage) {
           return RouteInfoProvider(
@@ -119,10 +118,12 @@ sealed class NomoPage<T> extends Page {
         final navInfo = NomoNavigatorInformationProvider.of(context).keys;
 
         if (navInfo.containsValue(pageRoute.key) == false) {
-          return RouteInfoProvider(
-            route: pageRoute,
-            type: RouteType.modal,
-            child: pageRoute.pageWithoutKey,
+          return SafeArea(
+            child: RouteInfoProvider(
+              route: pageRoute,
+              type: RouteType.modal,
+              child: Center(child: pageRoute.pageWithoutKey),
+            ),
           );
         }
 

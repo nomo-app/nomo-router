@@ -93,6 +93,7 @@ const _routes = [
         path: "/nestedSettings",
         page: SettingsModal,
         routePostfix: "NestedCool",
+        useRootNavigator: false,
       )
     ],
   ),

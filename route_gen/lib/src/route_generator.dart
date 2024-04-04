@@ -119,8 +119,8 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     }
     buffer.writeln("},");
     buffer.writeln(
-        "$name.expanded.where((r) => r is! NestedPageRouteInfo).toList(),");
-    buffer.writeln("$name.expanded.whereType<NestedPageRouteInfo>().toList(),");
+        "$name.expanded.where((r) => r is! NestedNavigator).toList(),");
+    buffer.writeln("$name.expanded.whereType<NestedNavigator>().toList(),");
     buffer.writeln(");");
 
     buffer.writeln("}");
