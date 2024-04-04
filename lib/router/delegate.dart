@@ -18,6 +18,8 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   late final Map<Key, GlobalKey<NavigatorState>> _nestedNavigatorKeys;
 
+  late final Map<Key, ValueNotifier<List<Page>>> _nestedNavigatorNotifiers;
+
   final NomoAppRouter appRouter;
   late final List<RouteInfo> routeInfos;
 
@@ -68,6 +70,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       for (final nestedRoute in nestedNavRoutes)
         nestedRoute.key:
             nestedRoute.navigatorKey ?? GlobalKey<NavigatorState>(),
+    };
+
+    _nestedNavigatorNotifiers = {
+      for (final nestedRoute in nestedNavRoutes)
+        nestedRoute.key: ValueNotifier([]),
     };
 
     nestedRoutes = {
@@ -138,12 +145,12 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   NestedNavigatorPage _getNestedRouterPage(NestedNavigator info) {
     final key = info.key;
     final navKey = _nestedNavigatorKeys[key]!;
-    final child = AnimatedBuilder(
-      animation: this,
-      builder: (context, child) {
-        final pages = nestedStack[key];
+    final child = ValueListenableBuilder(
+      valueListenable: _nestedNavigatorNotifiers[key]!,
+      builder: (context, pages, child) {
+        // final pages = nestedStack[key];
 
-        if (pages == null || pages.isEmpty) {
+        if (pages.isEmpty) {
           return const SizedBox();
         }
         return Navigator(
@@ -174,7 +181,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   @override
   RouterConfiguration get currentConfiguration {
-    print("Stack: $_stack");
+    for (final not in _nestedNavigatorNotifiers.entries) {
+      final notifier = not.value;
+      final key = not.key;
+      notifier.value = nestedStack[key] ?? [];
+    }
     return _stack;
   }
 
