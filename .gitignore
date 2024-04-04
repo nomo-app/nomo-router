@@ -35,3 +35,6 @@ build/
 android/
 ios/
 macos/
+windows/
+
+example/windows/

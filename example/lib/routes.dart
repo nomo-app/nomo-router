@@ -5,6 +5,7 @@ import 'package:example/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
+import 'package:nomo_router/router/entities/transitions.dart';
 import 'package:route_gen/anotations.dart';
 
 part 'routes.g.dart';
@@ -12,6 +13,12 @@ part 'routes.g.dart';
 Widget wrap(Widget nav) {
   return Scaffold(
     appBar: AppBar(
+      backgroundColor: Colors.red,
+      leading: BackButton(
+        onPressed: () {
+          NomoNavigator.fromKey.pop();
+        },
+      ),
       title: const Text("Nomo Router"),
       elevation: 2,
     ),
@@ -19,10 +26,35 @@ Widget wrap(Widget nav) {
   );
 }
 
+Widget wrapCool(Widget nav) {
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Colors.blue,
+      leading: BackButton(
+        onPressed: () {
+          NomoNavigator.fromKey.pop();
+        },
+      ),
+      title: const Text("Nomo Router Cool"),
+      elevation: 2,
+    ),
+    body: nav,
+  );
+}
+
+RouteType whenPage(BuildContext context) {
+  final width = MediaQuery.of(context).size.width;
+  return switch (width) {
+    < 600 => RouteType.modal,
+    _ => RouteType.page,
+  };
+}
+
 @AppRoutes()
 const _routes = [
-  NestedPageRouteInfo(
+  NestedNavigator(
     wrapper: wrap,
+    key: ValueKey("def"),
     children: [
       PageRouteInfo(
         path: '/home',
@@ -32,6 +64,21 @@ const _routes = [
         path: '/test',
         page: TestScreen,
       ),
+      DynamicRouteInfo(
+        when: whenPage,
+        path: "/nestedSettings",
+        page: SettingsModal,
+        routePostfix: "Nested",
+        transition: PageFadeTransition(),
+        useRootNavigator: false,
+      )
+    ],
+  ),
+  NestedNavigator(
+    wrapper: wrapCool,
+    key: ValueKey("cool"),
+    pathPrefix: "/c",
+    children: [
       PageRouteInfo(
         path: '/cool',
         page: CoolScreen,
@@ -44,7 +91,8 @@ const _routes = [
       ModalRouteInfo(
         path: "/nestedSettings",
         page: SettingsModal,
-        routePostfix: "Nested",
+        routePostfix: "NestedCool",
+        useRootNavigator: false,
       )
     ],
   ),

@@ -22,6 +22,12 @@ class AppRouter extends NomoAppRouter {
                 id: typedArgs?.id ?? TestEnum.one,
               );
             },
+            SettingsModalNestedRoute.path: ([a]) {
+              final typedArgs = a as SettingsModalNestedArguments?;
+              return SettingsModalNestedRoute(
+                id: typedArgs?.id,
+              );
+            },
             CoolScreenRoute.path: ([a]) {
               final typedArgs = a as CoolScreenArguments?;
               return CoolScreenRoute(
@@ -34,9 +40,9 @@ class AppRouter extends NomoAppRouter {
                 key: typedArgs?.key,
               );
             },
-            SettingsModalNestedRoute.path: ([a]) {
-              final typedArgs = a as SettingsModalNestedArguments?;
-              return SettingsModalNestedRoute(
+            SettingsModalNestedCoolRoute.path: ([a]) {
+              final typedArgs = a as SettingsModalNestedCoolArguments?;
+              return SettingsModalNestedCoolRoute(
                 id: typedArgs?.id,
               );
             },
@@ -47,8 +53,8 @@ class AppRouter extends NomoAppRouter {
               );
             },
           },
-          _routes.expanded.where((r) => r is! NestedPageRouteInfo).toList(),
-          _routes.expanded.whereType<NestedPageRouteInfo>().toList(),
+          _routes.expanded.where((r) => r is! NestedNavigator).toList(),
+          _routes.expanded.whereType<NestedNavigator>().toList(),
         );
 }
 
@@ -94,48 +100,6 @@ class TestScreenRoute extends AppRoute implements TestScreenArguments {
   static String path = '/test';
 }
 
-class CoolScreenArguments {
-  final Key? key;
-  const CoolScreenArguments({
-    this.key,
-  });
-}
-
-class CoolScreenRoute extends AppRoute implements CoolScreenArguments {
-  @override
-  final Key? key;
-  CoolScreenRoute({
-    this.key,
-  }) : super(
-          name: '/cool',
-          page: CoolScreen(
-            key: key,
-          ),
-        );
-  static String path = '/cool';
-}
-
-class CoolScreen2Arguments {
-  final Key? key;
-  const CoolScreen2Arguments({
-    this.key,
-  });
-}
-
-class CoolScreen2Route extends AppRoute implements CoolScreen2Arguments {
-  @override
-  final Key? key;
-  CoolScreen2Route({
-    this.key,
-  }) : super(
-          name: '/cool2',
-          page: CoolScreen(
-            key: key,
-          ),
-        );
-  static String path = '/cool2';
-}
-
 class SettingsModalNestedArguments {
   final String? id;
   const SettingsModalNestedArguments({
@@ -156,6 +120,70 @@ class SettingsModalNestedRoute extends AppRoute
           ),
         );
   static String path = '/nestedSettings';
+}
+
+class CoolScreenArguments {
+  final Key? key;
+  const CoolScreenArguments({
+    this.key,
+  });
+}
+
+class CoolScreenRoute extends AppRoute implements CoolScreenArguments {
+  @override
+  final Key? key;
+  CoolScreenRoute({
+    this.key,
+  }) : super(
+          name: '/c/cool',
+          page: CoolScreen(
+            key: key,
+          ),
+        );
+  static String path = '/c/cool';
+}
+
+class CoolScreen2Arguments {
+  final Key? key;
+  const CoolScreen2Arguments({
+    this.key,
+  });
+}
+
+class CoolScreen2Route extends AppRoute implements CoolScreen2Arguments {
+  @override
+  final Key? key;
+  CoolScreen2Route({
+    this.key,
+  }) : super(
+          name: '/c/cool2',
+          page: CoolScreen(
+            key: key,
+          ),
+        );
+  static String path = '/c/cool2';
+}
+
+class SettingsModalNestedCoolArguments {
+  final String? id;
+  const SettingsModalNestedCoolArguments({
+    this.id,
+  });
+}
+
+class SettingsModalNestedCoolRoute extends AppRoute
+    implements SettingsModalNestedCoolArguments {
+  @override
+  final String? id;
+  SettingsModalNestedCoolRoute({
+    this.id,
+  }) : super(
+          name: '/c/nestedSettings',
+          page: SettingsModal(
+            id: id,
+          ),
+        );
+  static String path = '/c/nestedSettings';
 }
 
 class SettingsModalArguments {

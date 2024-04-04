@@ -4,23 +4,26 @@ import 'package:nomo_router/router/entities/route_info.dart';
 class NomoNavigatorInformationProvider extends InheritedWidget {
   final RouteInfo current;
 
+  final Map<GlobalKey, LocalKey> keys;
+
   const NomoNavigatorInformationProvider({
     super.key,
     required super.child,
+    required this.keys,
     required this.current,
   });
 
-  static RouteInfo of(BuildContext context) {
-    final NomoNavigatorInformationProvider? result =
-        context.dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
+  static NomoNavigatorInformationProvider of(BuildContext context) {
+    final NomoNavigatorInformationProvider? result = context
+        .dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
     assert(result != null, 'No RouteInfoProvider found in context');
-    return result!.current;
+    return result!;
   }
 
-  static RouteInfo? maybeOf(BuildContext context) {
-    final NomoNavigatorInformationProvider? result =
-        context.dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
-    return result?.current;
+  static NomoNavigatorInformationProvider? maybeOf(BuildContext context) {
+    final NomoNavigatorInformationProvider? result = context
+        .dependOnInheritedWidgetOfExactType<NomoNavigatorInformationProvider>();
+    return result;
   }
 
   @override

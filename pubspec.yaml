@@ -14,11 +14,13 @@ dependencies:
   animations: ^2.0.8
   route_gen: 
     path: ./route_gen
-
+  collection: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  
+  build: any
+  source_gen: any
+  analyzer: any
 
 flutter:
