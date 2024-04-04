@@ -65,7 +65,7 @@ sealed class NomoPage<T> extends Page {
       settings: pageRoute,
       transitionDuration: transitionDuration,
       maintainState: true,
-      opaque: true,
+      opaque: routeInfo is DynamicRouteInfo ? false : true,
       transitionsBuilder: (
         context,
         animation,
@@ -80,14 +80,13 @@ sealed class NomoPage<T> extends Page {
         );
       },
       pageBuilder: (context, _, __) {
-        final navInfo = NomoNavigatorInformationProvider.of(context).keys;
-        if (navInfo.containsValue(pageRoute.key) == false &&
-            pageRoute is! NestedNavigatorPage) {
-          return RouteInfoProvider(
-            route: pageRoute,
-            type: RouteType.page,
-            child: pageRoute.pageWithoutKey,
-          );
+        if (routeInfo is DynamicRouteInfo) {
+          final navInfo = NomoNavigatorInformationProvider.of(context).keys;
+          if (navInfo.containsValue(pageRoute.key) == false) {
+            return const ColoredBox(
+              color: Colors.transparent,
+            );
+          }
         }
         return RouteInfoProvider(
           route: pageRoute,

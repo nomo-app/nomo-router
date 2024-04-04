@@ -13,6 +13,8 @@ class SettingsModal extends StatefulWidget {
 }
 
 class _SettingsModalState extends State<SettingsModal> {
+  bool value = false;
+
   @override
   Widget build(BuildContext context) {
     final isPage = RouteInfoProvider.of(context).type == RouteType.page;
@@ -30,7 +32,14 @@ class _SettingsModalState extends State<SettingsModal> {
                 style: const TextStyle(fontSize: 32),
               ),
             ),
-            TextField(),
+            Checkbox(
+              value: value,
+              onChanged: (value) {
+                setState(() {
+                  this.value = value!;
+                });
+              },
+            ),
             const SizedBox(height: 20),
             const RouteSelector(),
             ElevatedButton(
