@@ -100,7 +100,9 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   }
 
   @override
-  void didChangeMetrics() {
+  void didChangeMetrics() => recalculateDynamicRoutes();
+
+  void recalculateDynamicRoutes({bool shouldNotify = true}) {
     final dynRoutes = routeInfos.whereType<DynamicRouteInfo>();
 
     bool notifiy = false;
@@ -111,8 +113,11 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
       if (result == previousResult) continue;
 
-      final page =
-          _stack.singleWhereOrNull((element) => element.routeInfo == dynRoute);
+      _dynRouteStates[dynRoute] = result;
+
+      final page = _stack.singleWhereOrNull(
+        (page) => page.routeInfo == dynRoute,
+      );
       if (page == null) continue;
 
       final copy = page.copy;
@@ -122,11 +127,10 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
         _pagesKeys[page.page.key as GlobalKey] = copy.key!;
       }
 
-      _dynRouteStates[dynRoute] = result;
       notifiy = true;
     }
 
-    if (notifiy) {
+    if (notifiy && shouldNotify) {
       notifyListeners();
     }
   }
@@ -194,6 +198,12 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
 
   @override
   Widget build(BuildContext context) {
+    if (_dynRouteStates.isEmpty) {
+      print("Recalculating dynamic routes");
+
+      Future.microtask(() => recalculateDynamicRoutes(shouldNotify: false));
+    }
+
     return NomoNavigatorWrapper(
       delegate: this,
       key: nomoNavigatorKey,
@@ -498,12 +508,21 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     AppRoute? route,
     JsonMap? urlArguments,
   }) {
-    final gk = GlobalKey();
     final uk = UniqueKey();
-    _pagesKeys[gk] = uk;
+    final child = switch (routeInfo) {
+      DynamicRouteInfo _ => () {
+          final gk = GlobalKey();
+          _pagesKeys[gk] = uk;
+          return SizedBox(
+            key: gk,
+            child: page,
+          );
+        }.call(),
+      _ => page,
+    };
     return RootNomoPage(
       routeInfo: routeInfo,
-      page: SizedBox(key: gk, child: page),
+      page: child,
       pageWithoutKey: page,
       urlArguments: urlArguments,
       route: route,
@@ -517,12 +536,22 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     AppRoute? route,
     JsonMap? urlArguments,
   }) {
-    final gk = GlobalKey();
     final uk = UniqueKey();
-    _pagesKeys[gk] = uk;
+    final child = switch (routeInfo) {
+      DynamicRouteInfo _ => () {
+          final gk = GlobalKey();
+          _pagesKeys[gk] = uk;
+          return SizedBox(
+            key: gk,
+            child: page,
+          );
+        }.call(),
+      _ => page,
+    };
+
     return NestedNomoPage(
       routeInfo: routeInfo,
-      page: SizedBox(key: gk, child: page),
+      page: child,
       pageWithoutKey: page,
       urlArguments: urlArguments,
       route: route,
