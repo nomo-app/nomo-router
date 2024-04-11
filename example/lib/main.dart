@@ -20,28 +20,16 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  late final Uri initalUri =
-      WidgetsBinding.instance.platformDispatcher.defaultRouteName.uri;
-
-  late final delegate = NomoRouterDelegate(appRouter: appRouter);
-
   @override
   Widget build(BuildContext context) {
     return NomoNavigator(
-      delegate: delegate,
+      delegate: appRouter.delegate,
       defaultTransistion: const PageSharedAxisTransition(
         type: SharedAxisTransitionType.horizontal,
       ),
       defaultModalTransistion: const PageFadeScaleTransition(),
       child: MaterialApp.router(
-        routerDelegate: delegate,
-        routeInformationParser: const NomoRouteInformationParser(),
-        backButtonDispatcher: RootBackButtonDispatcher(),
-        routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation: RouteInformation(
-            uri: initalUri,
-          ),
-        ),
+        routerConfig: appRouter.config,
       ),
     );
   }
