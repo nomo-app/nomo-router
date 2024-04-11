@@ -1,5 +1,5 @@
 name: nomo_router
-description: A new Flutter package project.
+description: Navigator using the Navigator 2.0 API
 version: 0.0.1
 
 publish_to: none

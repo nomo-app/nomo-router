@@ -95,7 +95,13 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     ///
     buffer.writeln("class AppRouter extends NomoAppRouter {");
 
-    buffer.writeln("AppRouter() : super(");
+    buffer.writeln("final Future<bool> Function()? shouldPop;");
+    buffer.writeln("final Future<bool> Function()? willPop;");
+
+    buffer.writeln("late final RouterConfig<Object> config;");
+    buffer.writeln("late final NomoRouterDelegate delegate;");
+
+    buffer.writeln("AppRouter({this.shouldPop, this.willPop}) : super(");
     buffer.writeln("{");
     for (final route in routes) {
       final name = "${route.$1}${route.$2}";
@@ -121,7 +127,19 @@ class RouteGenerator extends GeneratorForAnnotation<AppRoutes> {
     buffer.writeln(
         "$name.expanded.where((r) => r is! NestedNavigator).toList(),");
     buffer.writeln("$name.expanded.whereType<NestedNavigator>().toList(),");
-    buffer.writeln(");");
+    buffer.writeln(") {");
+
+    buffer.writeln("delegate = NomoRouterDelegate(appRouter: this);");
+    buffer.writeln("""config = RouterConfig(
+      routerDelegate: delegate,
+      backButtonDispatcher: NomoBackButtonDispatcher(delegate, shouldPop, willPop),
+      routeInformationParser: const NomoRouteInformationParser(),
+      routeInformationProvider: PlatformRouteInformationProvider(
+        initialRouteInformation: RouteInformation(
+          uri: WidgetsBinding.instance.platformDispatcher.defaultRouteName.uri,
+        ),
+      )
+    );}""");
 
     buffer.writeln("}");
 
