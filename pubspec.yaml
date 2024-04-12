@@ -1,6 +1,8 @@
 name: nomo_router
 description: Navigator using the Navigator 2.0 API
 version: 0.0.1
+repository: https://github.com/nomo-app/nomo-router
+website: https://nomo.app
 
 publish_to: none
 
