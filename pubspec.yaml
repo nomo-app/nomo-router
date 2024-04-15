@@ -1,6 +1,6 @@
 name: nomo_router
 description: Navigator using the Navigator 2.0 API
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/nomo-app/nomo-router
 website: https://nomo.app
 platforms:
@@ -19,7 +19,6 @@ dependencies:
   flutter:
     sdk: flutter
   animations: ^2.0.8
-  route_gen: ^0.0.2
   collection: ^1.18.0
 dev_dependencies:
   flutter_test:

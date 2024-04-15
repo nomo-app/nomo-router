@@ -366,7 +366,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.2"
   package_config:
     dependency: transitive
     description:
@@ -410,10 +410,11 @@ packages:
   route_gen:
     dependency: "direct main"
     description:
-      path: "../route_gen"
-      relative: true
-    source: path
-    version: "0.0.0"
+      name: route_gen
+      sha256: "1b96cb4c3d4b41855818baeadeef641c360e3361cbf1b03b7ba6c4fad9058188"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   shelf:
     dependency: transitive
     description:
