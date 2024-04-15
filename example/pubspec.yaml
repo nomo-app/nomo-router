@@ -11,8 +11,7 @@ dependencies:
     sdk: flutter
   nomo_router:
     path: ../
-  route_gen:
-    path: ../route_gen
+  route_gen: ^0.0.2
   flutter_web_plugins:
     sdk: flutter
 

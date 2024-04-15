@@ -1,3 +1,0 @@
-class AppRoutes {
-  const AppRoutes();
-}
