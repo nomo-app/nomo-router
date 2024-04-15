@@ -36,7 +36,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   late final RouteInfo? initialRouteInfo;
 
   final List<NavigatorObserver> observers;
-  final List<NavigatorObserver> nestedObservers;
+  final Map<Key, List<NavigatorObserver>> nestedObservers;
 
   ///
   /// Used for Dynamic Routes
@@ -48,7 +48,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     this.initial,
     required this.appRouter,
     this.observers = const [],
-    this.nestedObservers = const [],
+    this.nestedObservers = const {},
   }) {
     WidgetsBinding.instance.addObserver(this);
 
@@ -148,14 +148,12 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
     final child = ValueListenableBuilder(
       valueListenable: _nestedNavigatorNotifiers[key]!,
       builder: (context, pages, child) {
-        // final pages = nestedStack[key];
-
         if (pages.isEmpty) {
           return const SizedBox();
         }
         return Navigator(
           pages: pages,
-          observers: nestedObservers,
+          observers: nestedObservers[key] ?? [],
           key: navKey,
           onPopPage: (route, result) {
             if (!route.didPop(result)) {
@@ -210,8 +208,6 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
   @override
   Widget build(BuildContext context) {
     if (_dynRouteStates.isEmpty) {
-      debugPrint("Recalculating dynamic routes");
-
       Future.microtask(() => recalculateDynamicRoutes(shouldNotify: false));
     }
 
