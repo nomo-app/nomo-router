@@ -38,3 +38,7 @@ macos/
 windows/
 
 example/windows/
+example/macos/
+example/linux/
+example/android/
+example/ios/
