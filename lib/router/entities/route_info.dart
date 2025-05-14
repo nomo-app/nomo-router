@@ -10,10 +10,14 @@ sealed class RouteInfo {
   final List<RouteInfo>? children;
   final PageTransition? transition;
   final String? routePostfix;
+  final bool barrierDismissible;
+  final Color? barrierColor;
 
   const RouteInfo({
     required this.path,
     required this.page,
+    required this.barrierDismissible,
+    this.barrierColor,
     this.routePostfix,
     this.children,
     this.transition,
@@ -47,12 +51,18 @@ sealed class RouteInfo {
 }
 
 final class PageRouteInfo extends RouteInfo {
+  final bool opaque;
+  final bool fullScreenDialog;
   const PageRouteInfo({
     required super.path,
     required super.page,
     super.routePostfix,
     super.children,
     super.transition,
+    super.barrierColor,
+    super.barrierDismissible = false,
+    this.opaque = false,
+    this.fullScreenDialog = false,
   });
 
   @override
@@ -76,6 +86,8 @@ final class ModalRouteInfo extends RouteInfo {
     super.transition,
     super.routePostfix,
     this.useRootNavigator = true,
+    super.barrierColor,
+    super.barrierDismissible = true,
   });
 
   @override
@@ -92,8 +104,16 @@ final class ModalRouteInfo extends RouteInfo {
 
 enum RouteType { page, modal }
 
-final class DynamicRouteInfo extends ModalRouteInfo {
+final class DynamicRouteInfo extends RouteInfo
+    implements ModalRouteInfo, PageRouteInfo {
   final RouteType Function(BuildContext context) when;
+
+  @override
+  final bool useRootNavigator;
+  @override
+  final bool opaque;
+  @override
+  final bool fullScreenDialog;
 
   const DynamicRouteInfo({
     required super.path,
@@ -102,7 +122,11 @@ final class DynamicRouteInfo extends ModalRouteInfo {
     super.children,
     super.transition,
     super.routePostfix,
-    super.useRootNavigator,
+    super.barrierColor,
+    super.barrierDismissible = true,
+    this.useRootNavigator = false,
+    this.opaque = false,
+    this.fullScreenDialog = false,
   });
 
   @override
@@ -117,7 +141,7 @@ final class DynamicRouteInfo extends ModalRouteInfo {
   }
 }
 
-final class NestedNavigator extends RouteInfo {
+final class NestedNavigator extends PageRouteInfo {
   final Widget Function(Widget nav) wrapper;
   final Key key;
   final GlobalKey<NavigatorState>? navigatorKey;
@@ -132,6 +156,7 @@ final class NestedNavigator extends RouteInfo {
           path: pathPrefix ?? "/",
           page: String,
           transition: null,
+          barrierDismissible: false,
         );
 
   @override

@@ -56,7 +56,7 @@ sealed class NomoPage<T> extends Page {
   }
 
   static Route<T> _pageRoute<T>({
-    required RouteInfo routeInfo,
+    required PageRouteInfo routeInfo,
     required NomoPage<T> pageRoute,
     required Duration transitionDuration,
     required PageTransition transition,
@@ -65,7 +65,10 @@ sealed class NomoPage<T> extends Page {
       settings: pageRoute,
       transitionDuration: transitionDuration,
       maintainState: true,
-      opaque: routeInfo is DynamicRouteInfo ? false : true,
+      opaque: routeInfo.opaque,
+      barrierDismissible: routeInfo.barrierDismissible,
+      fullscreenDialog: routeInfo.fullScreenDialog,
+      barrierColor: routeInfo.barrierColor,
       transitionsBuilder: (
         context,
         animation,
@@ -98,17 +101,21 @@ sealed class NomoPage<T> extends Page {
   }
 
   static Route<T> _modalRoute<T>({
-    required RouteInfo routeInfo,
+    required ModalRouteInfo routeInfo,
     required NomoPage<T> pageRoute,
     required Duration transitionDuration,
     required PageTransition transition,
     required BuildContext context,
+    bool useSafeArea = true,
+    Offset? anchorPoint,
   }) {
     return NomoModalRoute(
       context: context,
       settings: pageRoute,
-      barrierColor: Colors.black12,
-      barrierDismissible: true,
+      useSafeArea: useSafeArea,
+      anchorPoint: anchorPoint,
+      barrierColor: routeInfo.barrierColor,
+      barrierDismissible: routeInfo.barrierDismissible,
       transitionDuration: transitionDuration,
       transitionBuilder: (context, anim, secAnim, child) {
         return transition.getTransition(context, anim, secAnim, child);
@@ -172,14 +179,15 @@ sealed class NomoPage<T> extends Page {
               NomoNavigator.of(context).defaultModalTransistion,
           context: context,
         ),
-      _ => _pageRoute(
-          routeInfo: routeInfo,
+      PageRouteInfo pageRouteInfo => _pageRoute(
+          routeInfo: pageRouteInfo,
           pageRoute: this,
           transitionDuration:
               NomoNavigator.of(context).defaultTransitionDuration,
           transition: routeInfo.transition ??
               NomoNavigator.of(context).defaultTransistion,
         ),
+      _ => throw UnsupportedError("Not suported"),
     };
   }
 
