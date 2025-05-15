@@ -13,6 +13,7 @@ sealed class PageTransition {
     Widget child,
   ) {
     return switch (this) {
+      NoPageTransistion _ => child,
       PageFadeTransition _ => FadeTransition(
           opacity: animation,
           child: child,
@@ -68,4 +69,8 @@ final class PageSharedAxisTransition extends PageTransition {
   final Color? fillColor;
 
   const PageSharedAxisTransition({required this.type, this.fillColor});
+}
+
+final class NoPageTransistion extends PageTransition {
+  const NoPageTransistion();
 }

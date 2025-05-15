@@ -115,6 +115,8 @@ final class DynamicRouteInfo extends RouteInfo
   @override
   final bool fullScreenDialog;
 
+  final PageTransition? secondTransition;
+
   const DynamicRouteInfo({
     required super.path,
     required super.page,
@@ -127,6 +129,7 @@ final class DynamicRouteInfo extends RouteInfo
     this.useRootNavigator = false,
     this.opaque = false,
     this.fullScreenDialog = false,
+    this.secondTransition,
   });
 
   @override

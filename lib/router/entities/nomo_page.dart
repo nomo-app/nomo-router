@@ -156,7 +156,7 @@ sealed class NomoPage<T> extends Page {
                 pageRoute: this,
                 transitionDuration:
                     NomoNavigator.of(context).defaultModalTransitionDuration,
-                transition: dynamicRouteInfo.transition ??
+                transition: dynamicRouteInfo.secondTransition ??
                     NomoNavigator.of(context).defaultModalTransistion,
                 context: context,
               ),
