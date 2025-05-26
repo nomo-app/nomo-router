@@ -1,4 +1,4 @@
-library nomo_router;
+library;
 
 // Router
 export './router/nomo_navigator.dart';

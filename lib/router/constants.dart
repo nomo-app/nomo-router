@@ -15,7 +15,7 @@ class NotFoundRoute<A> implements AppRoute {
 }
 
 class NotFound extends StatelessWidget {
-  const NotFound({Key? key}) : super(key: key);
+  const NotFound({super.key});
 
   @override
   Widget build(BuildContext context) {
