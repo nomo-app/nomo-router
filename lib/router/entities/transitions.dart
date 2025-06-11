@@ -28,10 +28,10 @@ sealed class PageTransition {
           fillColor: transition.fillColor,
           child: child,
         ),
-      PageSlideTransition _ => SlideTransition(
+      PageSlideTransition transition => SlideTransition(
           position: Tween<Offset>(
-            begin: const Offset(0, 1),
-            end: Offset.zero,
+            begin: transition.begin,
+            end: transition.end,
           ).animate(animation),
           child: child,
         ),
@@ -55,7 +55,13 @@ final class PageFadeScaleTransition extends PageTransition {
 }
 
 final class PageSlideTransition extends PageTransition {
-  const PageSlideTransition();
+  final Offset begin;
+  final Offset end;
+
+  const PageSlideTransition({
+    this.begin = const Offset(1, 0),
+    this.end = Offset.zero,
+  });
 }
 
 final class PageFadeThroughTransition extends PageTransition {
