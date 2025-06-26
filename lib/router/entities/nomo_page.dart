@@ -5,7 +5,7 @@ import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
 import 'package:nomo_router/router/entities/transitions.dart';
 
-sealed class NomoPage<T> extends Page {
+sealed class NomoPage<T> extends Page<T> {
   final RouteInfo routeInfo;
   final AppRoute? route;
   final Widget page;
