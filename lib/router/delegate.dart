@@ -429,6 +429,7 @@ class NomoRouterDelegate extends RouterDelegate<RouterConfiguration>
       page: modal.runtimeType,
       useRootNavigator: true,
       transition: transition,
+      barrierColor: Colors.black38,
     );
 
     final page = _pageFromRouteInfo<T>(info, modal);
